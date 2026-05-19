@@ -1,7 +1,7 @@
 // Browser-side PDF text extraction using pdfjs-dist.
 // Runs in the client because the Cloudflare Worker SSR env can't load the worker bundle.
 import * as pdfjs from "pdfjs-dist";
-// @ts-expect-error - vite worker URL import
+
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
