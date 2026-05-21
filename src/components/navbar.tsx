@@ -1,6 +1,6 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Moon, Sun, FileText, LogOut, LayoutDashboard, Shield } from "lucide-react";
+import { Moon, Sun, FileText, LogOut, LayoutDashboard, Shield, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useTheme } from "@/hooks/use-theme";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export function Navbar() {
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary-glow text-primary-foreground shadow-md">
             <FileText className="h-5 w-5" />
           </div>
-          <span className="text-gradient">ResumeIQ</span>
+          <span className="text-gradient">CareerBoost AI</span>
         </Link>
 
         <nav className="flex items-center gap-1 sm:gap-2">
@@ -37,6 +37,9 @@ export function Navbar() {
               </Link>
               <Link to="/upload" className="hidden sm:inline-flex">
                 <Button variant="ghost" size="sm">Upload</Button>
+              </Link>
+              <Link to="/tools/cover-letter" search={{ role: "" }} className="hidden md:inline-flex">
+                <Button variant="ghost" size="sm"><Sparkles className="h-4 w-4 mr-1.5" /> Cover Letter</Button>
               </Link>
               {isAdmin && (
                 <Link to="/admin" className="hidden sm:inline-flex">
