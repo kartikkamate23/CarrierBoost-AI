@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedUploadRouteImport } from './routes/_authenticated/upload'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedToolsCoverLetterRouteImport } from './routes/_authenticated/tools.cover-letter'
 import { Route as AuthenticatedAnalysisReportIdRouteImport } from './routes/_authenticated/analysis.$reportId'
 
 const SignupRoute = SignupRouteImport.update({
@@ -52,6 +53,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedToolsCoverLetterRoute =
+  AuthenticatedToolsCoverLetterRouteImport.update({
+    id: '/tools/cover-letter',
+    path: '/tools/cover-letter',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAnalysisReportIdRoute =
   AuthenticatedAnalysisReportIdRouteImport.update({
     id: '/analysis/$reportId',
@@ -67,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/upload': typeof AuthenticatedUploadRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
+  '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,6 +84,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/upload': typeof AuthenticatedUploadRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
+  '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,6 +96,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/upload': typeof AuthenticatedUploadRoute
   '/_authenticated/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
+  '/_authenticated/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/upload'
     | '/analysis/$reportId'
+    | '/tools/cover-letter'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/upload'
     | '/analysis/$reportId'
+    | '/tools/cover-letter'
   id:
     | '__root__'
     | '/'
@@ -117,6 +129,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/upload'
     | '/_authenticated/analysis/$reportId'
+    | '/_authenticated/tools/cover-letter'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -177,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/tools/cover-letter': {
+      id: '/_authenticated/tools/cover-letter'
+      path: '/tools/cover-letter'
+      fullPath: '/tools/cover-letter'
+      preLoaderRoute: typeof AuthenticatedToolsCoverLetterRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/analysis/$reportId': {
       id: '/_authenticated/analysis/$reportId'
       path: '/analysis/$reportId'
@@ -192,6 +212,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedUploadRoute: typeof AuthenticatedUploadRoute
   AuthenticatedAnalysisReportIdRoute: typeof AuthenticatedAnalysisReportIdRoute
+  AuthenticatedToolsCoverLetterRoute: typeof AuthenticatedToolsCoverLetterRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -199,6 +220,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedUploadRoute: AuthenticatedUploadRoute,
   AuthenticatedAnalysisReportIdRoute: AuthenticatedAnalysisReportIdRoute,
+  AuthenticatedToolsCoverLetterRoute: AuthenticatedToolsCoverLetterRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -214,13 +236,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

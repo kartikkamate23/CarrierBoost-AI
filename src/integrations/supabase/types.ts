@@ -17,15 +17,20 @@ export type Database = {
       analysis_reports: {
         Row: {
           ats_score: number
+          career_roadmap: Json
           created_at: string
           formatting_feedback: string | null
           grammar_feedback: string | null
           id: string
+          interview_questions: Json
           job_recommendations: Json
           matched_keywords: Json
           missing_keywords: Json
+          recommended_courses: Json
+          reference_videos: Json
           resume_id: string
           role_match_score: number
+          skill_gap: Json
           skills: Json
           strengths: Json
           suggestions: Json
@@ -36,15 +41,20 @@ export type Database = {
         }
         Insert: {
           ats_score: number
+          career_roadmap?: Json
           created_at?: string
           formatting_feedback?: string | null
           grammar_feedback?: string | null
           id?: string
+          interview_questions?: Json
           job_recommendations?: Json
           matched_keywords?: Json
           missing_keywords?: Json
+          recommended_courses?: Json
+          reference_videos?: Json
           resume_id: string
           role_match_score?: number
+          skill_gap?: Json
           skills?: Json
           strengths?: Json
           suggestions?: Json
@@ -55,15 +65,20 @@ export type Database = {
         }
         Update: {
           ats_score?: number
+          career_roadmap?: Json
           created_at?: string
           formatting_feedback?: string | null
           grammar_feedback?: string | null
           id?: string
+          interview_questions?: Json
           job_recommendations?: Json
           matched_keywords?: Json
           missing_keywords?: Json
+          recommended_courses?: Json
+          reference_videos?: Json
           resume_id?: string
           role_match_score?: number
+          skill_gap?: Json
           skills?: Json
           strengths?: Json
           suggestions?: Json
@@ -81,6 +96,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cover_letters: {
+        Row: {
+          company: string | null
+          content: string
+          created_at: string
+          id: string
+          resume_id: string | null
+          target_role: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          resume_id?: string | null
+          target_role: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          resume_id?: string | null
+          target_role?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

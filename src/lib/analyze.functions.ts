@@ -21,29 +21,60 @@ type AnalysisJSON = {
   suggestions: string[];
   grammar_feedback: string;
   formatting_feedback: string;
-  job_recommendations: { title: string; reason: string }[];
+  job_recommendations: { title: string; reason: string; type?: string }[];
+  career_roadmap: { stage: string; timeframe: string; items: string[] }[];
+  skill_gap: { have: string[]; missing: string[]; priority: string[] };
+  interview_questions: { category: string; difficulty: string; question: string; answer_hint: string }[];
+  recommended_courses: { title: string; platform: string; level: string; duration: string; free: boolean; url?: string }[];
+  reference_videos: { title: string; topic: string; query: string }[];
 };
 
-const SYSTEM_PROMPT = `You are an expert ATS (Applicant Tracking System) and senior technical recruiter.
-Analyze the resume against the target role and return STRICT JSON only (no markdown, no prose).
+const SYSTEM_PROMPT = `You are an expert ATS (Applicant Tracking System) analyst, senior technical recruiter, and career coach.
+Analyze the resume against the target role and return STRICT JSON only (no markdown, no prose, no code fences).
 
-Schema:
+Use this exact schema. All arrays must be populated with realistic, specific, actionable content based on the resume and role.
+
 {
-  "ats_score": integer 0-100,
-  "role_match_score": integer 0-100,
-  "summary": "2-3 sentence professional summary of the candidate",
-  "skills": ["array of 8-15 technical/professional skills found"],
-  "strengths": ["array of 4-6 specific strengths"],
-  "weaknesses": ["array of 3-5 honest weaknesses"],
-  "matched_keywords": ["10-20 keywords from the resume that align with the role"],
+  "ats_score": <int 0-100>,
+  "role_match_score": <int 0-100>,
+  "summary": "<2-3 sentence professional summary of the candidate>",
+  "skills": ["8-15 technical/professional skills found"],
+  "strengths": ["4-6 specific strengths"],
+  "weaknesses": ["3-5 honest weaknesses"],
+  "matched_keywords": ["10-20 keywords from the resume aligned with the role"],
   "missing_keywords": ["6-12 important keywords missing for this role"],
   "suggestions": ["5-8 concrete, actionable improvement suggestions"],
-  "grammar_feedback": "1-2 paragraphs on grammar, spelling, tone",
-  "formatting_feedback": "1-2 paragraphs on structure, length, readability for ATS",
-  "job_recommendations": [{"title": "Job title", "reason": "Why this fits"}] (3-5 items)
+  "grammar_feedback": "<1-2 paragraphs on grammar, spelling, tone>",
+  "formatting_feedback": "<1-2 paragraphs on structure, length, ATS readability>",
+  "job_recommendations": [
+    {"title": "Job title", "reason": "Why this fits", "type": "Full-time | Internship | Contract"}
+  ],
+  "career_roadmap": [
+    {"stage": "Beginner | Intermediate | Advanced | Expert", "timeframe": "e.g. 1 month / 3 months / 6 months / 1 year", "items": ["3-5 concrete learning or work milestones"]}
+  ],
+  "skill_gap": {
+    "have": ["5-10 skills candidate already has for the role"],
+    "missing": ["5-10 skills the candidate is missing for the role"],
+    "priority": ["3-5 high-priority skills to learn first"]
+  },
+  "interview_questions": [
+    {"category": "HR | Technical | Behavioral", "difficulty": "Easy | Medium | Hard", "question": "...", "answer_hint": "1-2 sentence guidance"}
+  ],
+  "recommended_courses": [
+    {"title": "Course title", "platform": "Coursera | Udemy | freeCodeCamp | Google | edX | Pluralsight", "level": "Beginner | Intermediate | Advanced", "duration": "e.g. 4 weeks", "free": true|false, "url": "optional homepage URL"}
+  ],
+  "reference_videos": [
+    {"title": "Video topic title", "topic": "Resume | Interview | Skill | Career", "query": "YouTube search query that returns a great real video for this"}
+  ]
 }
 
-Be honest, specific, and constructive. Use the candidate's actual content.`;
+Rules:
+- Provide 4 entries in career_roadmap (Beginner, Intermediate, Advanced, Expert).
+- Provide 8-12 interview_questions covering all three categories.
+- Provide 5-8 recommended_courses.
+- Provide 4-6 reference_videos.
+- Be honest, specific, and constructive. Use the candidate's actual content.
+- Output ONLY the JSON object, nothing else.`;
 
 export const analyzeResume = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -51,11 +82,8 @@ export const analyzeResume = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) {
-      throw new Error("AI service is not configured.");
-    }
+    if (!apiKey) throw new Error("AI service is not configured.");
 
-    // Verify resume belongs to user (RLS will also enforce on insert)
     const { data: resume, error: rErr } = await supabase
       .from("resumes")
       .select("id, user_id")
@@ -68,10 +96,7 @@ export const analyzeResume = createServerFn({ method: "POST" })
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
@@ -101,7 +126,6 @@ export const analyzeResume = createServerFn({ method: "POST" })
       throw new Error("AI returned malformed response. Please try again.");
     }
 
-    // Insert analysis report
     const { data: report, error: iErr } = await supabase
       .from("analysis_reports")
       .insert({
@@ -120,6 +144,11 @@ export const analyzeResume = createServerFn({ method: "POST" })
         grammar_feedback: parsed.grammar_feedback ?? "",
         formatting_feedback: parsed.formatting_feedback ?? "",
         job_recommendations: parsed.job_recommendations ?? [],
+        career_roadmap: parsed.career_roadmap ?? [],
+        skill_gap: parsed.skill_gap ?? { have: [], missing: [], priority: [] },
+        interview_questions: parsed.interview_questions ?? [],
+        recommended_courses: parsed.recommended_courses ?? [],
+        reference_videos: parsed.reference_videos ?? [],
       })
       .select("id")
       .single();
@@ -129,7 +158,6 @@ export const analyzeResume = createServerFn({ method: "POST" })
       throw new Error("Failed to save analysis report.");
     }
 
-    // Also save target role on resume for history display
     await supabase.from("resumes").update({ target_role: data.targetRole }).eq("id", data.resumeId);
 
     return { reportId: report.id };
