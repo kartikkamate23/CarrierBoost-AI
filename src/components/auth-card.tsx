@@ -86,19 +86,21 @@ export function AuthCard({ mode }: { mode: Mode }) {
     else toast.success("New code sent");
   };
 
-  const signInWithGoogle = async () => {
-    setGoogleLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}${redirectTo}`,
-    });
-    if (result.error) {
-      setGoogleLoading(false);
-      toast.error(result.error.message || "Google sign-in failed");
-      return;
-    }
-    if (result.redirected) return;
+ const signInWithGoogle = async () => {
+  setGoogleLoading(true);
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/dashboard`,
+    },
+  });
+
+  if (error) {
     setGoogleLoading(false);
-    navigate({ to: redirectTo });
+    toast.error(error.message);
+  }
+};
   };
 
   return (
