@@ -17,10 +17,12 @@ function LoginPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { redirect } = Route.useSearch();
+  const target = redirect || "/dashboard";
 
   useEffect(() => {
-    if (user) navigate({ to: redirect });
-  }, [user, redirect, navigate]);
+    if (user) navigate({ to: target });
+  }, [user, target, navigate]);
+
 
   return (
     <div className="min-h-screen flex flex-col">
