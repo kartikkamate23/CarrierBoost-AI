@@ -5,9 +5,10 @@ import { AuthCard } from "@/components/auth-card";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    redirect: (s.redirect as string) || "/dashboard",
+  validateSearch: (s: Record<string, unknown>): { redirect?: string } => ({
+    redirect: typeof s.redirect === "string" ? s.redirect : undefined,
   }),
+
   component: LoginPage,
   head: () => ({ meta: [{ title: "Sign in — ResumeIQ" }] }),
 });
