@@ -86,22 +86,18 @@ export function AuthCard({ mode }: { mode: Mode }) {
     else toast.success("New code sent");
   };
 
- const signInWithGoogle = async () => {
-  setGoogleLoading(true);
-
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${window.location.origin}/dashboard`,
-    },
-  });
-
-  if (error) {
-    setGoogleLoading(false);
-    toast.error(error.message);
-  }
-};
+  const signInWithGoogle = async () => {
+    setGoogleLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    });
+    if (error) {
+      setGoogleLoading(false);
+      toast.error(error.message);
+    }
   };
+
 
   return (
     <motion.div
