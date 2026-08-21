@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Loader2, Mail, ArrowLeft, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { getSafeAuthDestination, rememberAuthDestination } from "@/lib/auth-navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +19,7 @@ type Mode = "signin" | "signup";
 export function AuthCard({ mode }: { mode: Mode }) {
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { redirect?: string };
-  const redirectTo = search?.redirect || "/dashboard";
+  const redirectTo = getSafeAuthDestination(search?.redirect);
 
   const [step, setStep] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
@@ -41,7 +42,7 @@ export function AuthCard({ mode }: { mode: Mode }) {
       email: parsed.data,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}${redirectTo}`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
     setLoading(false);
@@ -88,16 +89,31 @@ export function AuthCard({ mode }: { mode: Mode }) {
 
   const signInWithGoogle = async () => {
     setGoogleLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
+    rememberAuthDestination(redirectTo);
+
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/auth/callback`,
+        extraParams: { prompt: "select_account" },
+      });
+      if (result.error) {
+        setGoogleLoading(false);
+        toast.error(result.error.message ?? "Google sign-in failed");
+        return;
+      }
+      if (result.redirected) return;
+
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        setGoogleLoading(false);
+        toast.error(error?.message ?? "Google sign-in did not create a valid session");
+        return;
+      }
+      navigate({ to: redirectTo, replace: true });
+    } catch (error) {
       setGoogleLoading(false);
-      toast.error(result.error.message ?? "Google sign-in failed");
-      return;
+      toast.error(error instanceof Error ? error.message : "Google sign-in failed");
     }
-    if (result.redirected) return;
-    navigate({ to: redirectTo });
   };
 
 

@@ -1,23 +1,20 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
+  ssr: false,
   beforeLoad: async ({ location }) => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
+    return { user: data.user };
   },
   component: AuthLayout,
 });
 
 function AuthLayout() {
-  // Re-check on client side too (handles SSR-less environments and stale sessions)
-  const [ready, setReady] = useState(false);
-  useEffect(() => setReady(true), []);
-  if (!ready) return null;
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
