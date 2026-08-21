@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthenticatedUploadRouteImport } from './routes/_authenticated/upload'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -36,6 +37,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedUploadRoute = AuthenticatedUploadRouteImport.update({
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/upload': typeof AuthenticatedUploadRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
 }
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/upload': typeof AuthenticatedUploadRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
 }
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/upload': typeof AuthenticatedUploadRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/_authenticated/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/_authenticated/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
 }
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/upload'
+    | '/auth/callback'
     | '/analysis/$reportId'
     | '/tools/cover-letter'
   fileRoutesByTo: FileRoutesByTo
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/upload'
+    | '/auth/callback'
     | '/analysis/$reportId'
     | '/tools/cover-letter'
   id:
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/upload'
+    | '/auth/callback'
     | '/_authenticated/analysis/$reportId'
     | '/_authenticated/tools/cover-letter'
   fileRoutesById: FileRoutesById
@@ -137,6 +149,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/upload': {
@@ -232,6 +252,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
