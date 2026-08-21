@@ -1,4 +1,4 @@
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Moon, Sun, FileText, LogOut, LayoutDashboard, Shield, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -8,12 +8,6 @@ import { Button } from "@/components/ui/button";
 export function Navbar() {
   const { user, isAdmin, signOut } = useAuth();
   const { theme, toggle } = useTheme();
-  const router = useRouter();
-
-  const handleSignOut = async () => {
-    await signOut();
-    router.navigate({ to: "/" });
-  };
 
   return (
     <motion.header
@@ -52,7 +46,7 @@ export function Navbar() {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           {user ? (
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
+            <Button variant="outline" size="sm" onClick={() => void signOut()}>
               <LogOut className="h-4 w-4 sm:mr-1.5" /> <span className="hidden sm:inline">Sign out</span>
             </Button>
           ) : (

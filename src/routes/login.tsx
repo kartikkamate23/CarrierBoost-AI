@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { AuthCard } from "@/components/auth-card";
 import { useAuth } from "@/hooks/use-auth";
+import { getSafeAuthDestination } from "@/lib/auth-navigation";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (s: Record<string, unknown>): { redirect?: string } => ({
@@ -17,10 +18,10 @@ function LoginPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { redirect } = Route.useSearch();
-  const target = redirect || "/dashboard";
+  const target = getSafeAuthDestination(redirect);
 
   useEffect(() => {
-    if (user) navigate({ to: target });
+    if (user) navigate({ to: target, replace: true });
   }, [user, target, navigate]);
 
 

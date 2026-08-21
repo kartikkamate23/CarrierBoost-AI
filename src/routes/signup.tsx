@@ -14,7 +14,7 @@ function SignupPage() {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) navigate({ to: "/dashboard" });
+    if (user) navigate({ to: "/dashboard", replace: true });
   }, [user, navigate]);
 
   return (

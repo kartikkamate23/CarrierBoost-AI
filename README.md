@@ -140,9 +140,19 @@ The app expects these tables in the `public` schema with RLS enabled
 Auth configuration:
 
 - Enable **Email** provider (OTP / magic link) — no password needed.
-- Enable the **Google** provider and add your Vercel domain plus
-  `https://<your-domain>/dashboard` to the allowed redirect URLs.
-- Set **Site URL** to your production domain.
+- Enable the **Google** provider.
+- Set **Site URL** to the primary production origin, for example
+  `https://your-app.vercel.app` (no path).
+- Add these exact callback patterns to **Allowed Redirect URLs**:
+  - `http://localhost:8080/auth/callback` for local development.
+  - `https://your-app.vercel.app/auth/callback` for Vercel production.
+  - `https://your-preview-domain/auth/callback` for each preview domain you use.
+  - `https://your-custom-domain/auth/callback` when a custom domain is connected.
+
+The app derives the callback from `window.location.origin`; it never hardcodes
+localhost or a production host. The callback is public, verifies the persisted
+session, and only then redirects to the protected dashboard. Do not use a
+protected route such as `/dashboard` as the OAuth callback.
 
 To grant yourself admin access, insert a row into `user_roles`:
 
