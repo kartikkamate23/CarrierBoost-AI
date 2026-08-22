@@ -9,7 +9,11 @@ export function getSafeAuthDestination(value: unknown): string {
   try {
     const url = new URL(value, "https://careerboost.local");
     if (url.origin !== "https://careerboost.local") return DEFAULT_AUTH_DESTINATION;
-    if (url.pathname === "/login" || url.pathname === "/signup" || url.pathname === "/auth/callback") {
+    if (
+      url.pathname === "/login" ||
+      url.pathname === "/signup" ||
+      url.pathname === "/auth/callback"
+    ) {
       return DEFAULT_AUTH_DESTINATION;
     }
     return `${url.pathname}${url.search}${url.hash}`;

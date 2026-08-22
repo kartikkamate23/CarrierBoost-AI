@@ -7,18 +7,18 @@ report, and an AI cover-letter generator.
 
 ## Tech stack
 
-| Layer      | Technology |
-| ---------- | ---------- |
-| Framework  | TanStack Start v1 (React 19 + Vite 7, **SSR** — not a static SPA) |
-| Routing    | TanStack Router (file-based, `src/routes/`) |
-| Data       | TanStack Query |
-| Styling    | Tailwind CSS v4 + shadcn/ui + Framer Motion |
-| Backend    | TanStack **server functions** (`createServerFn`) — no separate Express server |
-| Database   | Supabase Postgres (RLS enforced) |
-| Auth       | Supabase Auth — passwordless Email OTP + Google OAuth |
-| AI         | Lovable AI Gateway (OpenAI-compatible, `google/gemini-2.5-flash`) |
-| PDF        | `pdfjs-dist` (client-side text extraction), `jspdf` (report export) |
-| Deploy     | Nitro (auto-targets Vercel / Cloudflare) |
+| Layer     | Technology                                                                    |
+| --------- | ----------------------------------------------------------------------------- |
+| Framework | TanStack Start v1 (React 19 + Vite 7, **SSR** — not a static SPA)             |
+| Routing   | TanStack Router (file-based, `src/routes/`)                                   |
+| Data      | TanStack Query                                                                |
+| Styling   | Tailwind CSS v4 + shadcn/ui + Framer Motion                                   |
+| Backend   | TanStack **server functions** (`createServerFn`) — no separate Express server |
+| Database  | Supabase Postgres (RLS enforced)                                              |
+| Auth      | Supabase Auth — passwordless Email OTP + Google OAuth                         |
+| AI        | Lovable AI Gateway (OpenAI-compatible, `google/gemini-2.5-flash`)             |
+| PDF       | `pdfjs-dist` (client-side text extraction), `jspdf` (report export)           |
+| Deploy    | Nitro (auto-targets Vercel / Cloudflare)                                      |
 
 > This is a **full-stack SSR app**, not a client-only SPA. There is no
 > `index.html` and no `dist/` folder — Vite + Nitro produce a server build.
@@ -70,15 +70,15 @@ Node 20+ is required.
 Add all of these in **Vercel → Project → Settings → Environment Variables**
 (Production + Preview), and locally in `.env`.
 
-| Variable | Required | Exposed to browser | Purpose |
-| -------- | -------- | ------------------ | ------- |
-| `VITE_SUPABASE_URL` | yes | yes | Supabase project URL (client) |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | yes | yes | Supabase anon/publishable key (client) |
-| `VITE_SUPABASE_PROJECT_ID` | optional | yes | Project ref, informational |
-| `SUPABASE_URL` | yes | no | Same URL, used by SSR/server functions |
-| `SUPABASE_PUBLISHABLE_KEY` | yes | no | Same anon key, used by SSR/server functions |
-| `SUPABASE_SERVICE_ROLE_KEY` | only for admin features | no | Service-role key used by the admin client. **Never** prefix with `VITE_`. |
-| `LOVABLE_API_KEY` | yes for AI features | no | AI gateway key for resume analysis + cover letters |
+| Variable                        | Required                | Exposed to browser | Purpose                                                                   |
+| ------------------------------- | ----------------------- | ------------------ | ------------------------------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | yes                     | yes                | Supabase project URL (client)                                             |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | yes                     | yes                | Supabase anon/publishable key (client)                                    |
+| `VITE_SUPABASE_PROJECT_ID`      | optional                | yes                | Project ref, informational                                                |
+| `SUPABASE_URL`                  | yes                     | no                 | Same URL, used by SSR/server functions                                    |
+| `SUPABASE_PUBLISHABLE_KEY`      | yes                     | no                 | Same anon key, used by SSR/server functions                               |
+| `SUPABASE_SERVICE_ROLE_KEY`     | only for admin features | no                 | Service-role key used by the admin client. **Never** prefix with `VITE_`. |
+| `LOVABLE_API_KEY`               | yes for AI features     | no                 | AI gateway key for resume analysis + cover letters                        |
 
 Without `LOVABLE_API_KEY` the app still builds and runs, but analysis and
 cover-letter generation return "AI service is not configured".
@@ -103,14 +103,14 @@ git push -u origin main
 1. Vercel → **Add New… → Project** → import the GitHub repo.
 2. Use these settings:
 
-| Setting | Value |
-| ------- | ----- |
-| **Framework Preset** | `Other` |
-| **Build Command** | `npm run build` |
-| **Output Directory** | *leave empty* (the build emits the Vercel Build Output API at `.vercel/output`) |
-| **Install Command** | `npm install` |
-| **Root Directory** | `./` (repository root) |
-| **Node.js Version** | 20.x or 22.x |
+| Setting              | Value                                                                           |
+| -------------------- | ------------------------------------------------------------------------------- |
+| **Framework Preset** | `Other`                                                                         |
+| **Build Command**    | `npm run build`                                                                 |
+| **Output Directory** | _leave empty_ (the build emits the Vercel Build Output API at `.vercel/output`) |
+| **Install Command**  | `npm install`                                                                   |
+| **Root Directory**   | `./` (repository root)                                                          |
+| **Node.js Version**  | 20.x or 22.x                                                                    |
 
 3. Add every environment variable from the table above.
 4. Deploy.

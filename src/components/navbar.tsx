@@ -27,17 +27,29 @@ export function Navbar() {
           {user && (
             <>
               <Link to="/dashboard" className="hidden sm:inline-flex">
-                <Button variant="ghost" size="sm"><LayoutDashboard className="h-4 w-4 mr-1.5" /> Dashboard</Button>
+                <Button variant="ghost" size="sm">
+                  <LayoutDashboard className="h-4 w-4 mr-1.5" /> Dashboard
+                </Button>
               </Link>
               <Link to="/upload" className="hidden sm:inline-flex">
-                <Button variant="ghost" size="sm">Upload</Button>
+                <Button variant="ghost" size="sm">
+                  Upload
+                </Button>
               </Link>
-              <Link to="/tools/cover-letter" search={{ role: "" }} className="hidden md:inline-flex">
-                <Button variant="ghost" size="sm"><Sparkles className="h-4 w-4 mr-1.5" /> Cover Letter</Button>
+              <Link
+                to="/tools/cover-letter"
+                search={{ role: "" }}
+                className="hidden md:inline-flex"
+              >
+                <Button variant="ghost" size="sm">
+                  <Sparkles className="h-4 w-4 mr-1.5" /> Cover Letter
+                </Button>
               </Link>
               {isAdmin && (
                 <Link to="/admin" className="hidden sm:inline-flex">
-                  <Button variant="ghost" size="sm"><Shield className="h-4 w-4 mr-1.5" /> Admin</Button>
+                  <Button variant="ghost" size="sm">
+                    <Shield className="h-4 w-4 mr-1.5" /> Admin
+                  </Button>
                 </Link>
               )}
             </>
@@ -47,12 +59,21 @@ export function Navbar() {
           </Button>
           {user ? (
             <Button variant="outline" size="sm" onClick={() => void signOut()}>
-              <LogOut className="h-4 w-4 sm:mr-1.5" /> <span className="hidden sm:inline">Sign out</span>
+              <LogOut className="h-4 w-4 sm:mr-1.5" />{" "}
+              <span className="hidden sm:inline">Sign out</span>
             </Button>
           ) : (
             <>
-              <Link to="/login"><Button variant="ghost" size="sm">Login</Button></Link>
-              <Link to="/signup"><Button size="sm" className="shadow-md btn-glow">Get started</Button></Link>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">
+                  Login
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button size="sm" className="shadow-md btn-glow">
+                  Get started
+                </Button>
+              </Link>
             </>
           )}
         </nav>

@@ -32,7 +32,10 @@ function OAuthCallbackPage() {
       if (!active) return;
 
       if (userError || !data.user) {
-        setError(userError?.message ?? "Google sign-in completed without a valid session. Please try again.");
+        setError(
+          userError?.message ??
+            "Google sign-in completed without a valid session. Please try again.",
+        );
         return;
       }
 
@@ -41,7 +44,9 @@ function OAuthCallbackPage() {
     };
 
     void completeSignIn();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [navigate]);
 
   if (error) {
@@ -64,7 +69,9 @@ function OAuthCallbackPage() {
       <div className="text-center">
         <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
         <h1 className="mt-4 text-lg font-semibold">Completing your sign-in</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Your dashboard will open automatically.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Your dashboard will open automatically.
+        </p>
       </div>
     </main>
   );
