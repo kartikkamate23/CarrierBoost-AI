@@ -51,22 +51,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!active) return;
-      const initialSession = data.session;
-      setSession(initialSession);
-      setUser(initialSession?.user ?? null);
-      setLoading(false);
-      if (initialSession?.user) {
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", initialSession.user.id)
-          .eq("role", "admin")
-          .maybeSingle()
-          .then(({ data }) => setIsAdmin(!!data));
-      }
-    });
+    void Promise.all([supabase.auth.getSession(), supabase.auth.getUser()]).then(
+      ([sessionResult, userResult]) => {
+        if (!active) return;
+        const verifiedUser = userResult.error ? null : userResult.data.user;
+        const initialSession = verifiedUser ? sessionResult.data.session : null;
+        setSession(initialSession);
+        setUser(verifiedUser);
+        setLoading(false);
+        if (verifiedUser) {
+          supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", verifiedUser.id)
+            .eq("role", "admin")
+            .maybeSingle()
+            .then(({ data }) => setIsAdmin(!!data));
+        }
+      },
+    );
 
     return () => {
       active = false;
