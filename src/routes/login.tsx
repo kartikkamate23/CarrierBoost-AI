@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { getSafeAuthDestination } from "@/lib/auth-navigation";
 
 export const Route = createFileRoute("/login")({
+  ssr: false,
   validateSearch: (s: Record<string, unknown>): { redirect?: string } => ({
     redirect: typeof s.redirect === "string" ? s.redirect : undefined,
   }),
