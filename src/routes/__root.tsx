@@ -43,12 +43,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
         <div className="mt-6 flex justify-center gap-2">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
             className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
           >
             Try again
           </button>
-          <a href="/" className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent">
+          <a
+            href="/"
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+          >
             Go home
           </a>
         </div>
@@ -63,15 +69,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "ResumeIQ — AI Resume Analyzer & ATS Scoring" },
-      { name: "description", content: "Upload your resume and get instant AI-powered ATS scoring, keyword analysis, strengths, weaknesses, and tailored improvements." },
+      {
+        name: "description",
+        content:
+          "Upload your resume and get instant AI-powered ATS scoring, keyword analysis, strengths, weaknesses, and tailored improvements.",
+      },
       { property: "og:title", content: "ResumeIQ — AI Resume Analyzer & ATS Scoring" },
-      { property: "og:description", content: "Upload your resume and get instant AI-powered ATS scoring, keyword analysis, strengths, weaknesses, and tailored improvements." },
+      {
+        property: "og:description",
+        content:
+          "Upload your resume and get instant AI-powered ATS scoring, keyword analysis, strengths, weaknesses, and tailored improvements.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "ResumeIQ — AI Resume Analyzer & ATS Scoring" },
-      { name: "twitter:description", content: "Upload your resume and get instant AI-powered ATS scoring, keyword analysis, strengths, weaknesses, and tailored improvements." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8384ff97-b27f-45e2-867d-e605d5e79036/id-preview-889efe7f--9cc233cc-0fef-4d6d-ac84-2732907ba199.lovable.app-1779214322997.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8384ff97-b27f-45e2-867d-e605d5e79036/id-preview-889efe7f--9cc233cc-0fef-4d6d-ac84-2732907ba199.lovable.app-1779214322997.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Upload your resume and get instant AI-powered ATS scoring, keyword analysis, strengths, weaknesses, and tailored improvements.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8384ff97-b27f-45e2-867d-e605d5e79036/id-preview-889efe7f--9cc233cc-0fef-4d6d-ac84-2732907ba199.lovable.app-1779214322997.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8384ff97-b27f-45e2-867d-e605d5e79036/id-preview-889efe7f--9cc233cc-0fef-4d6d-ac84-2732907ba199.lovable.app-1779214322997.png",
+      },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

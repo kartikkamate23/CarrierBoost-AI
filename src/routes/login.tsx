@@ -24,7 +24,6 @@ function LoginPage() {
     if (user) navigate({ to: target, replace: true });
   }, [user, target, navigate]);
 
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
