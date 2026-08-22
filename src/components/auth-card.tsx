@@ -40,6 +40,7 @@ export function AuthCard({ mode }: { mode: Mode }) {
       toast.error(parsed.error.issues[0].message);
       return;
     }
+    rememberAuthDestination(redirectTo);
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
       email: parsed.data,
