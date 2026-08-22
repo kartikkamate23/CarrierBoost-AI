@@ -5,7 +5,6 @@ import { AuthCard } from "@/components/auth-card";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/signup")({
-  ssr: false,
   component: SignupPage,
   head: () => ({ meta: [{ title: "Sign up — ResumeIQ" }] }),
 });
