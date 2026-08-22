@@ -1,4 +1,10 @@
-import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  useHydrated,
+  useNavigate,
+  useRouterState,
+} from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
@@ -11,14 +17,15 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthLayout() {
   const { user, loading } = useAuth();
+  const hydrated = useHydrated();
   const navigate = useNavigate();
   const destination = useRouterState({ select: (state) => state.location.href });
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (hydrated && !loading && !user) {
       navigate({ to: "/login", search: { redirect: destination }, replace: true });
     }
-  }, [destination, loading, navigate, user]);
+  }, [destination, hydrated, loading, navigate, user]);
 
   if (loading || !user) {
     return (
