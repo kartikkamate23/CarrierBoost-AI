@@ -19,6 +19,18 @@ const otpSchema = z
 
 type Mode = "signin" | "signup";
 
+function isLovableHost() {
+  const host = window.location.hostname;
+  return (
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host.endsWith(".lovable.app") ||
+    host.endsWith(".lovable.dev") ||
+    host.endsWith(".lovableproject.com")
+  );
+}
+
+
 export function AuthCard({ mode }: { mode: Mode }) {
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { redirect?: string };
@@ -94,10 +106,30 @@ export function AuthCard({ mode }: { mode: Mode }) {
   const signInWithGoogle = async () => {
     setGoogleLoading(true);
     rememberAuthDestination(redirectTo);
+    const callbackUrl = `${window.location.origin}/auth/callback`;
 
     try {
+      // Lovable's managed Google OAuth broker relies on /~oauth/* paths that only
+      // exist behind Lovable hosting. On any other host (Vercel, custom deploys)
+      // those paths 404, so go straight to the backend's own Google provider.
+      if (!isLovableHost()) {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: callbackUrl, queryParams: { prompt: "select_account" } },
+        });
+        if (error) {
+          setGoogleLoading(false);
+          toast.error(
+            error.message.includes("provider")
+              ? "Google sign-in isn't configured for this domain yet. Add your Google OAuth client in the backend auth settings, or use the email code below."
+              : error.message,
+          );
+        }
+        return;
+      }
+
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: callbackUrl,
         extraParams: { prompt: "select_account" },
       });
       if (result.error) {
@@ -119,6 +151,8 @@ export function AuthCard({ mode }: { mode: Mode }) {
       toast.error(error instanceof Error ? error.message : "Google sign-in failed");
     }
   };
+
+
 
   return (
     <motion.div
