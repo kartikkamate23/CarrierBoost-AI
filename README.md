@@ -149,6 +149,13 @@ Auth configuration:
   - `https://your-preview-domain/auth/callback` for each preview domain you use.
   - `https://your-custom-domain/auth/callback` when a custom domain is connected.
 
+On Vercel, custom domains, and standalone localhost, the Google button calls
+the backend provider directly with `redirectTo` set to
+`<current-origin>/auth/callback`. It does not use Lovable's managed
+`/~oauth/*` broker. That broker is loaded only on actual Lovable-hosted
+domains. For a standalone deployment, configure your own Google OAuth client
+ID and secret in the backend authentication provider settings.
+
 The app derives the callback from `window.location.origin`; it never hardcodes
 localhost or a production host. The callback is public, verifies the persisted
 session, and only then redirects to the protected dashboard. Do not use a
