@@ -19,6 +19,18 @@ const otpSchema = z
 
 type Mode = "signin" | "signup";
 
+function isLovableHost() {
+  const host = window.location.hostname;
+  return (
+    host === "localhost" ||
+    host === "127.0.0.1" ||
+    host.endsWith(".lovable.app") ||
+    host.endsWith(".lovable.dev") ||
+    host.endsWith(".lovableproject.com")
+  );
+}
+
+
 export function AuthCard({ mode }: { mode: Mode }) {
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { redirect?: string };
