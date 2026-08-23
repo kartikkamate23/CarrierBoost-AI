@@ -5,7 +5,6 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2, Mail, ArrowLeft, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { getSafeAuthDestination, rememberAuthDestination } from "@/lib/auth-navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,11 +18,9 @@ const otpSchema = z
 
 type Mode = "signin" | "signup";
 
-function isLovableHost() {
-  const host = window.location.hostname;
+function isLovableHostedOrigin(hostname: string) {
+  const host = hostname.toLowerCase();
   return (
-    host === "localhost" ||
-    host === "127.0.0.1" ||
     host.endsWith(".lovable.app") ||
     host.endsWith(".lovable.dev") ||
     host.endsWith(".lovableproject.com")
@@ -109,10 +106,10 @@ export function AuthCard({ mode }: { mode: Mode }) {
     const callbackUrl = `${window.location.origin}/auth/callback`;
 
     try {
-      // Lovable's managed Google OAuth broker relies on /~oauth/* paths that only
-      // exist behind Lovable hosting. On any other host (Vercel, custom deploys)
-      // those paths 404, so go straight to the backend's own Google provider.
-      if (!isLovableHost()) {
+      // The managed broker exposes /~oauth/* only on Lovable-hosted domains.
+      // Vercel, custom domains, and standalone localhost must use the backend
+      // provider directly so they never navigate to a missing /~oauth route.
+      if (!isLovableHostedOrigin(window.location.hostname)) {
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: { redirectTo: callbackUrl, queryParams: { prompt: "select_account" } },
@@ -128,6 +125,9 @@ export function AuthCard({ mode }: { mode: Mode }) {
         return;
       }
 
+      // Keep the broker out of standalone deployments' startup path. This
+      // module is loaded only after confirming the app is hosted by Lovable.
+      const { lovable } = await import("@/integrations/lovable");
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: callbackUrl,
         extraParams: { prompt: "select_account" },
