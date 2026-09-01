@@ -23,6 +23,7 @@ import { Route as MentorRouteImport } from './routes/mentor'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as JobmatchRouteImport } from './routes/jobmatch'
 import { Route as InterviewiqRouteImport } from './routes/interviewiq'
+import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as AnalyzeRouteImport } from './routes/analyze'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -107,6 +108,11 @@ const InterviewiqRoute = InterviewiqRouteImport.update({
   path: '/interviewiq',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalyzeRoute = AnalyzeRouteImport.update({
   id: '/analyze',
   path: '/analyze',
@@ -122,9 +128,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
-  id: '/courses/$courseId',
-  path: '/courses/$courseId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$courseId',
+  path: '/$courseId',
+  getParentRoute: () => CoursesRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
@@ -178,6 +184,7 @@ const LearnCourseIdUnitIdLessonIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analyze': typeof AnalyzeRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/interviewiq': typeof InterviewiqRoute
   '/jobmatch': typeof JobmatchRoute
   '/login': typeof LoginRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analyze': typeof AnalyzeRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/interviewiq': typeof InterviewiqRoute
   '/jobmatch': typeof JobmatchRoute
   '/login': typeof LoginRoute
@@ -236,6 +244,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/analyze': typeof AnalyzeRoute
+  '/courses': typeof CoursesRouteWithChildren
   '/interviewiq': typeof InterviewiqRoute
   '/jobmatch': typeof JobmatchRoute
   '/login': typeof LoginRoute
@@ -266,6 +275,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/analyze'
+    | '/courses'
     | '/interviewiq'
     | '/jobmatch'
     | '/login'
@@ -294,6 +304,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/analyze'
+    | '/courses'
     | '/interviewiq'
     | '/jobmatch'
     | '/login'
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/analyze'
+    | '/courses'
     | '/interviewiq'
     | '/jobmatch'
     | '/login'
@@ -353,6 +365,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AnalyzeRoute: typeof AnalyzeRoute
+  CoursesRoute: typeof CoursesRouteWithChildren
   InterviewiqRoute: typeof InterviewiqRoute
   JobmatchRoute: typeof JobmatchRoute
   LoginRoute: typeof LoginRoute
@@ -370,7 +383,6 @@ export interface RootRouteChildren {
   ApiHealthRoute: typeof ApiHealthRoute
   ApiHitavirCompletionRoute: typeof ApiHitavirCompletionRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
-  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
   LearnCourseIdUnitIdLessonIdRoute: typeof LearnCourseIdUnitIdLessonIdRoute
 }
 
@@ -474,6 +486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InterviewiqRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analyze': {
       id: '/analyze'
       path: '/analyze'
@@ -497,10 +516,10 @@ declare module '@tanstack/react-router' {
     }
     '/courses/$courseId': {
       id: '/courses/$courseId'
-      path: '/courses/$courseId'
+      path: '/$courseId'
       fullPath: '/courses/$courseId'
       preLoaderRoute: typeof CoursesCourseIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof CoursesRoute
     }
     '/auth/callback': {
       id: '/auth/callback'
@@ -588,10 +607,22 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface CoursesRouteChildren {
+  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+}
+
+const CoursesRouteChildren: CoursesRouteChildren = {
+  CoursesCourseIdRoute: CoursesCourseIdRoute,
+}
+
+const CoursesRouteWithChildren =
+  CoursesRoute._addFileChildren(CoursesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AnalyzeRoute: AnalyzeRoute,
+  CoursesRoute: CoursesRouteWithChildren,
   InterviewiqRoute: InterviewiqRoute,
   JobmatchRoute: JobmatchRoute,
   LoginRoute: LoginRoute,
@@ -609,7 +640,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHealthRoute: ApiHealthRoute,
   ApiHitavirCompletionRoute: ApiHitavirCompletionRoute,
   AuthCallbackRoute: AuthCallbackRoute,
-  CoursesCourseIdRoute: CoursesCourseIdRoute,
   LearnCourseIdUnitIdLessonIdRoute: LearnCourseIdUnitIdLessonIdRoute,
 }
 export const routeTree = rootRouteImport

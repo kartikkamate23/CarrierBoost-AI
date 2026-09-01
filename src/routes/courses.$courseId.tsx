@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import {
   findHitavirCourse,
   getCoursesForTargetRole,
-  hitavirCourseOutlines,
 } from "@/lib/hitavir-courses";
 import { loadTargetRole } from "@/lib/target-role";
 
@@ -47,7 +46,6 @@ function CoursePage() {
     );
   }
 
-  const outline = hitavirCourseOutlines[course.id] ?? [];
   return (
     <ProductPage
       eyebrow="BrihatLabs course"
@@ -55,7 +53,7 @@ function CoursePage() {
       description={course.summary}
       showIntro={false}
     >
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <Link
           to="/programs"
           className="mb-4 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
@@ -63,7 +61,7 @@ function CoursePage() {
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to role courses
         </Link>
 
-        <section className="mx-auto max-w-3xl surface-card p-5 sm:p-6">
+        <section className="surface-card p-5 sm:p-8">
           <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-warning">
             <span>{course.level ?? "All levels"}</span>
             <span aria-hidden="true">·</span>
@@ -167,21 +165,22 @@ function CoursePage() {
               This course is sourced from the BrihatLabs catalog. Work through the modules and
               lessons below at your own pace.
             </p>
-            <ol className="mt-4 space-y-2.5">
-              {outline.map((section, index) => (
-                <li key={section} className="flex gap-3 rounded-lg border bg-background p-3.5">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
-                    {index + 1}
-                  </span>
-                  <div>
-                    <p className="font-medium">{section}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Review the lessons in this module using the course material below.
-                    </p>
+            <div className="mt-4 space-y-4">
+              {course.brihatlabs.units.map((unit, unitIndex) => (
+                <section key={unit.id} className="rounded-xl border bg-background p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div><p className="text-xs font-bold uppercase tracking-wide text-primary">Module {unitIndex + 1}</p><h3 className="mt-1 font-semibold text-foreground">{unit.title}</h3></div>
+                    <span className="text-xs text-muted-foreground">{unit.lessons.length} lessons</span>
                   </div>
-                </li>
+                  <p className="mt-2 text-sm text-muted-foreground">{unit.description}</p>
+                  <ol className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {unit.lessons.map((lesson, lessonIndex) => (
+                      <li key={lesson.id}><Link to="/learn/$courseId/$unitId/$lessonId" params={{ courseId: course.brihatlabs.slug, unitId: unit.id, lessonId: lesson.id }} className="flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"><span className="text-xs font-semibold text-primary">{lessonIndex + 1}</span><span className="min-w-0 flex-1">{lesson.title}</span><span className="text-xs">{lesson.duration}</span></Link></li>
+                    ))}
+                  </ol>
+                </section>
               ))}
-            </ol>
+            </div>
           </section>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">

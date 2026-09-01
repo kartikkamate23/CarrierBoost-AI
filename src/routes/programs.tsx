@@ -14,7 +14,7 @@ export const Route = createFileRoute("/programs")({
   head: () => ({ meta: [{ title: "BrihatLabs Courses | CareerBoost AI" }] }),
 });
 
-function Programs() {
+export function Programs() {
   const [targetRole, setTargetRole] = useState("Data Engineer");
   useEffect(() => setTargetRole(loadTargetRole()), []);
   useEffect(() => saveTargetRole(targetRole), [targetRole]);
@@ -25,7 +25,7 @@ function Programs() {
       <Navbar />
       <main id="main-content">
         <section className="bg-mesh border-b">
-          <div className="container mx-auto max-w-6xl px-4 py-14">
+          <div className="container mx-auto max-w-7xl px-4 py-14">
             <p className="text-caption uppercase text-primary">BrihatLabs Courses</p>
             <h1 className="mt-3 max-w-3xl font-display text-h1 text-foreground sm:text-display">
               Learn from the BrihatLabs catalog
@@ -49,7 +49,7 @@ function Programs() {
           </div>
         </section>
 
-        <section className="container mx-auto max-w-6xl px-4 py-12">
+        <section className="container mx-auto max-w-7xl px-4 py-12">
           <div className="mb-7">
             <h2 className="font-display text-h2 text-foreground">
               Courses for {targetRole || "your target role"}
