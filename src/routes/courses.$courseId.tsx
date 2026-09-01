@@ -26,6 +26,7 @@ function CoursePage() {
   const course = findBrihatLabsCourse(courseId);
   const courseLessonIds = course?.brihatlabs.units.flatMap((unit) => unit.lessons.map((lesson) => lesson.id)) ?? [];
   const progress = useCourseProgress(course?.brihatlabs.slug ?? courseId, courseLessonIds);
+  const allAssessmentsPassed = Boolean(course?.brihatlabs.units.flatMap((unit) => unit.lessons.filter((lesson) => lesson.type === "quiz")).every((lesson) => (progress.quizScores[lesson.id] ?? 0) > 75));
   const [targetRole, setTargetRole] = useState("Data Engineer");
 
   useEffect(() => {
@@ -186,7 +187,7 @@ function CoursePage() {
                   </div>
                   <p className="mt-2 text-sm text-muted-foreground">{unit.description}</p>
                   <ol className="mt-3 grid gap-2 sm:grid-cols-2">
-                    {unit.lessons.map((lesson, lessonIndex) => (
+                    {unit.lessons.filter((lesson) => lesson.type !== "project" || allAssessmentsPassed).map((lesson, lessonIndex) => (
                       <li key={lesson.id}><Link to="/learn/$courseId/$unitId/$lessonId" params={{ courseId: course.brihatlabs.slug, unitId: unit.id, lessonId: lesson.id }} className="flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"><span className="text-xs font-semibold text-primary">{lessonIndex + 1}</span><span className="min-w-0 flex-1">{lesson.title}</span><span className="text-xs">{lesson.duration}</span></Link></li>
                     ))}
                   </ol>

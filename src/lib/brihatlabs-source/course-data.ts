@@ -495,7 +495,28 @@ const subjectCourses: Course[] = seedSubjects.map((subject) => {
 /** The curated seven-course catalog shown in the main individual-course marketplace. */
 export const courses = coreCourses;
 /** All course records, including subject courses linked from career programs. */
-export const allCourses = [...coreCourses, ...subjectCourses] satisfies Course[];
+function keepOnlyFinalProject(course: Course): Course {
+  const projects = course.units.flatMap((unit) => unit.lessons.filter((lesson) => lesson.type === "project"));
+  const finalProject = projects.at(-1) ?? {
+    id: "final-project",
+    title: `Final ${course.shortTitle} portfolio project`,
+    type: "project" as const,
+    duration: "45 min",
+    description: `Apply the complete ${course.shortTitle} workflow to a realistic, portfolio-ready problem.`,
+    content: [{ type: "heading" as const, text: "Final project problem statement" }, { type: "paragraph" as const, text: `Choose a realistic problem in ${course.shortTitle}, define success criteria, build the solution, validate it with evidence, and document the trade-offs.` }],
+  };
+  return {
+    ...course,
+    units: course.units.map((unit, index) => ({
+      ...unit,
+      lessons: index === course.units.length - 1
+        ? [...unit.lessons.filter((lesson) => lesson.type !== "project"), finalProject]
+        : unit.lessons.filter((lesson) => lesson.type !== "project"),
+    })),
+  };
+}
+
+export const allCourses = [...coreCourses, ...subjectCourses].map(keepOnlyFinalProject) satisfies Course[];
 
 const courseSlugAliases: Record<string, string> = {
   powerbi: "power-bi", genai: "generative-ai", agents: "ai-agents", postgres: "postgresql", testing: "software-testing",
