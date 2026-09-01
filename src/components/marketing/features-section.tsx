@@ -38,7 +38,7 @@ const features = [
     title: "SkillPath",
     to: "/skillpath",
     description:
-      "Follow the Hitavir Tech course sequence matched to your role, with completion verified by the learning portal rather than self-reported.",
+      "Follow the BrihatLabs course sequence matched to your role with a clear, self-paced curriculum.",
   },
   {
     icon: Bot,

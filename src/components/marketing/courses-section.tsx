@@ -5,16 +5,15 @@ import { Section, SectionHeading, Reveal, RevealItem } from "@/components/market
 import { featuredHitavirCourses, hitavirCourses } from "@/lib/hitavir-courses";
 
 /**
- * Featured courses, read straight from the real Hitavir Tech catalogue in
- * src/lib/hitavir-courses.ts. Nothing is hard-coded here.
+ * Featured courses, read straight from the BrihatLabs catalogue adapter.
  */
 export function CoursesSection() {
   return (
     <Section tone="muted">
       <SectionHeading
-        eyebrow="Hitavir Tech partnership"
+        eyebrow="BrihatLabs Courses"
         title="Gaps map onto a real course catalogue."
-        body={`CareerBoost connects detected skill gaps to ${hitavirCourses.length} verified Hitavir Tech courses. Course content is hosted in the Hitavir learning portal and may require enrolment.`}
+        body={`CareerBoost connects detected skill gaps to ${hitavirCourses.length} BrihatLabs courses. Explore the curriculum directly in the CareerBoost course experience.`}
       />
 
       <Reveal className="mt-14 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

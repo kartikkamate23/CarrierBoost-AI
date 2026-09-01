@@ -17,7 +17,7 @@ const problems = [
   {
     icon: Shuffle,
     problem: "Courses unrelated to the gap",
-    solution: "Detected gaps map directly onto the verified Hitavir Tech catalogue.",
+    solution: "Detected gaps map directly onto the BrihatLabs course catalogue.",
   },
   {
     icon: CircleHelp,

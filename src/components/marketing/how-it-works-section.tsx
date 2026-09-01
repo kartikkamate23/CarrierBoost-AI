@@ -20,7 +20,7 @@ const steps = [
     icon: GraduationCap,
     title: "Close the gap",
     description:
-      "Work through the Hitavir Tech courses matched to your weakest areas, then turn the result into a portfolio project in ProjectLab.",
+      "Work through BrihatLabs courses matched to your weakest areas, then turn the result into a portfolio project in ProjectLab.",
   },
   {
     icon: MessageSquareText,

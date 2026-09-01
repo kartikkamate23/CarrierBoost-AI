@@ -46,7 +46,7 @@ const faqs = [
   {
     question: "Can watching lessons mark a skill as mastered?",
     answer:
-      "No. Course completion is verified by the Hitavir Tech portal, and mastery additionally requires assessment or project evidence against a structured rubric. Watching content is not a demonstration.",
+      "No. Course completion is not inferred from opening content; mastery additionally requires assessment or project evidence against a structured rubric.",
   },
   {
     question: "Is the score guaranteed to match every ATS?",

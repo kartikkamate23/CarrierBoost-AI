@@ -6,19 +6,19 @@ import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getCoursesForTargetRole } from "@/lib/hitavir-courses";
+import { hitavirCourses } from "@/lib/hitavir-courses";
 import { loadTargetRole, saveTargetRole } from "@/lib/target-role";
 
 export const Route = createFileRoute("/programs")({
   component: Programs,
-  head: () => ({ meta: [{ title: "Hitavir Tech Courses | CareerBoost AI" }] }),
+  head: () => ({ meta: [{ title: "BrihatLabs Courses | CareerBoost AI" }] }),
 });
 
 function Programs() {
   const [targetRole, setTargetRole] = useState("Data Engineer");
   useEffect(() => setTargetRole(loadTargetRole()), []);
   useEffect(() => saveTargetRole(targetRole), [targetRole]);
-  const courses = useMemo(() => getCoursesForTargetRole(targetRole, 6), [targetRole]);
+  const courses = useMemo(() => hitavirCourses, []);
 
   return (
     <div className="min-h-screen">
@@ -26,13 +26,12 @@ function Programs() {
       <main id="main-content">
         <section className="bg-mesh border-b">
           <div className="container mx-auto max-w-6xl px-4 py-14">
-            <p className="text-caption uppercase text-primary">Hitavir Tech learning portal</p>
+            <p className="text-caption uppercase text-primary">BrihatLabs Courses</p>
             <h1 className="mt-3 max-w-3xl font-display text-h1 text-foreground sm:text-display">
-              Learn from the real Hitavir Tech catalog
+              Learn from the BrihatLabs catalog
             </h1>
             <p className="mt-5 max-w-3xl text-body-lg text-muted-foreground">
-              Explore verified Hitavir Tech courses and codelabs. Complete course content is hosted
-              in the learning portal and may require an enrolled Google account.
+              Explore the complete BrihatLabs course catalog within CareerBoost AI.
             </p>
             <div className="mt-8 max-w-2xl">
               <div className="flex-1">
@@ -56,7 +55,7 @@ function Programs() {
               Courses for {targetRole || "your target role"}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              {courses.length} role-matched learning resources from Hitavir Tech. Change the target
+              {courses.length} role-matched learning resources from BrihatLabs. Change the target
               role above to refresh this list.
             </p>
           </div>
@@ -66,7 +65,7 @@ function Programs() {
                 <div className="flex items-start justify-between gap-4">
                   <BookOpenCheck className="h-6 w-6 shrink-0 text-primary" />
                   <span className="rounded-full bg-secondary px-2.5 py-1 text-caption normal-case tracking-normal text-secondary-foreground">
-                    {course.source === "Hitavir Tech portal" ? "Enrolled access" : "Codelab"}
+                    BrihatLabs course
                   </span>
                 </div>
                 <h3 className="mt-5 font-display text-h3 text-foreground">{course.title}</h3>

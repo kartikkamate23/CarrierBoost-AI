@@ -32,7 +32,7 @@ export function HeroSection() {
 
           <motion.p variants={slideUp} className="mt-6 max-w-xl text-body-lg text-muted-foreground">
             CareerBoost AI scores your resume against a target role using a transparent, versioned
-            rubric — then turns every gap into verified Hitavir Tech coursework, portfolio projects
+            rubric — then turns every gap into BrihatLabs coursework, portfolio projects
             and interview practice.
           </motion.p>
 

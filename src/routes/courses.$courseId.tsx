@@ -5,23 +5,19 @@ import {
   ArrowRight,
   BookOpenCheck,
   Clock3,
-  ExternalLink,
-  RefreshCw,
 } from "lucide-react";
 import { ProductPage } from "@/components/product-page";
 import { Button } from "@/components/ui/button";
-import { useHitavirProgress } from "@/hooks/use-hitavir-progress";
 import {
   findHitavirCourse,
   getCoursesForTargetRole,
-  HITAVIR_PORTAL_URL,
   hitavirCourseOutlines,
 } from "@/lib/hitavir-courses";
 import { loadTargetRole } from "@/lib/target-role";
 
 export const Route = createFileRoute("/courses/$courseId")({
   component: CoursePage,
-  head: () => ({ meta: [{ title: "Hitavir Tech Course | CareerBoost AI" }] }),
+  head: () => ({ meta: [{ title: "BrihatLabs Course | CareerBoost AI" }] }),
 });
 
 function CoursePage() {
@@ -34,15 +30,13 @@ function CoursePage() {
   }, []);
 
   const roleCourses = useMemo(() => getCoursesForTargetRole(targetRole, 15), [targetRole]);
-  const { items, syncState } = useHitavirProgress(course ? [course.id] : []);
-  const courseProgress = course ? items[course.id] : undefined;
   const currentStep = course ? roleCourses.findIndex((item) => item.id === course.id) : -1;
   const nextCourses = currentStep >= 0 ? roleCourses.slice(currentStep + 1, currentStep + 4) : [];
 
   if (!course) {
     return (
       <ProductPage
-        eyebrow="Hitavir Tech course"
+        eyebrow="BrihatLabs course"
         title="Course not found"
         description="This course is not in the current CareerBoost catalog."
       >
@@ -56,7 +50,7 @@ function CoursePage() {
   const outline = hitavirCourseOutlines[course.id] ?? [];
   return (
     <ProductPage
-      eyebrow="Hitavir Tech course"
+      eyebrow="BrihatLabs course"
       title={course.title}
       description={course.summary}
       showIntro={false}
@@ -91,10 +85,9 @@ function CoursePage() {
           </div>
           <div className="mt-4">
             <Button asChild size="sm" className="min-w-44">
-              <a href={HITAVIR_PORTAL_URL} target="_blank" rel="noopener noreferrer">
+              <Link to="/courses/$courseId" params={{ courseId: course.id }} hash="content">
                 Start course <ArrowRight className="ml-2 h-3.5 w-3.5" />
-                <ExternalLink className="ml-1 h-3.5 w-3.5" />
-              </a>
+              </Link>
             </Button>
           </div>
         </section>
@@ -107,8 +100,7 @@ function CoursePage() {
           </p>
           <h2 className="mt-2 font-display text-h3 text-foreground">Recommended next courses</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Hitavir opens on its course catalog first, where you can review the current course and
-            recommendations before starting. Continue in this order after completion is verified.
+            Review the current course and continue through the catalog in the recommended order.
           </p>
           {nextCourses.length ? (
             <ol className="mt-4 grid gap-4 md:grid-cols-3">
@@ -157,9 +149,9 @@ function CoursePage() {
               </span>
             </div>
             <h2 className="mt-5 font-display text-h3 text-foreground">Course content</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              This preview introduces the selected course. Enrolled lessons and trainer resources
-              remain in the official Hitavir portal.
+            <p id="content" className="mt-2 text-sm leading-6 text-muted-foreground">
+              This course is sourced from the BrihatLabs catalog. Work through the modules and
+              lessons below at your own pace.
             </p>
             <ol className="mt-4 space-y-2.5">
               {outline.map((section, index) => (
@@ -170,7 +162,7 @@ function CoursePage() {
                   <div>
                     <p className="font-medium">{section}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Continue this section using the official Hitavir Tech course material.
+                      Review the lessons in this module using the course material below.
                     </p>
                   </div>
                 </li>
@@ -190,22 +182,12 @@ function CoursePage() {
               </div>
             </div>
             <div className="surface-card p-5">
-              <RefreshCw className="h-6 w-6 text-primary" />
-              <h2 className="mt-3 font-semibold">Automatic completion</h2>
+              <BookOpenCheck className="h-6 w-6 text-primary" />
+              <h2 className="mt-3 font-semibold">Course progress</h2>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {syncState === "signed_out"
-                  ? "Sign in with the same email used on Hitavir. Completion cannot be changed by the learner."
-                  : syncState === "unavailable"
-                    ? "The secure Hitavir webhook is awaiting configuration. Completion is never inferred from opening a link."
-                    : "Completion cannot be changed by the learner and is updated only from verified Hitavir course activity."}
+                Progress is presented from the available course outline. Completion tracking is not
+                inferred from opening a lesson.
               </p>
-              <span className="mt-4 inline-flex rounded-lg bg-secondary px-3 py-2 text-xs font-semibold text-muted-foreground">
-                {courseProgress?.status === "completed"
-                  ? "Completed on Hitavir"
-                  : courseProgress
-                    ? `${courseProgress.progressPercent}% complete on Hitavir`
-                    : "Awaiting Hitavir verification"}
-              </span>
             </div>
           </aside>
         </div>

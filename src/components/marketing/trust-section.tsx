@@ -35,7 +35,7 @@ export function TrustSection() {
             <Stat
               icon={GraduationCap}
               value={hitavirCourses.length}
-              label="Hitavir Tech courses"
+              label="BrihatLabs courses"
               detail="Mapped to detected skill gaps"
             />
             <Stat

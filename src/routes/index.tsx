@@ -15,7 +15,7 @@ import { FaqSection } from "@/components/marketing/faq-section";
 import { CtaSection } from "@/components/marketing/cta-section";
 
 const description =
-  "Score your resume against a target role on a transparent, versioned rubric, then close every gap with verified Hitavir Tech courses, portfolio projects and interview practice. Free to start, no account required.";
+  "Score your resume against a target role on a transparent, versioned rubric, then close every gap with BrihatLabs courses, portfolio projects and interview practice. Free to start, no account required.";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,

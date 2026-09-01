@@ -83,7 +83,7 @@ function RoadmapPage() {
     <ProductPage
       eyebrow="Career Roadmap"
       title="Your plan should fit your life—not the average learner."
-      description="Set your target, availability, experience, and learning preference. CareerBoost maps current evidence gaps to a time-bound sequence of verified Hitavir Tech courses and proof."
+      description="Set your target, availability, experience, and learning preference. CareerBoost maps current evidence gaps to a time-bound sequence of BrihatLabs courses and proof."
     >
       <SavedProofItems analysis={analysis} />
       <div className="grid gap-8 lg:grid-cols-[minmax(0,.72fr)_minmax(0,1.28fr)]">

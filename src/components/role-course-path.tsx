@@ -1,9 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
-import { CheckCircle2, Clock3, GraduationCap, RefreshCw } from "lucide-react";
+import { Clock3, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { useHitavirProgress } from "@/hooks/use-hitavir-progress";
 import { getCoursesForTargetRole } from "@/lib/hitavir-courses";
 
 const stages = [
@@ -17,16 +15,13 @@ const stages = [
 
 export function RoleCoursePath({ targetRole }: { targetRole: string }) {
   const courses = useMemo(() => getCoursesForTargetRole(targetRole, 6), [targetRole]);
-  const { items, syncState } = useHitavirProgress(courses.map((course) => course.id));
-  const completed = courses.filter((course) => items[course.id]?.status === "completed").length;
-  const percentage = Math.round((completed / courses.length) * 100);
 
   return (
     <section aria-labelledby="role-skillpath-heading">
       <div className="rounded-2xl border bg-card p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-primary">Hitavir Tech SkillPath</p>
+            <p className="text-sm font-semibold text-primary">BrihatLabs SkillPath</p>
             <h3 id="role-skillpath-heading" className="mt-1 text-xl font-bold">
               Sequential path to become a {targetRole}
             </h3>
@@ -37,23 +32,17 @@ export function RoleCoursePath({ targetRole }: { targetRole: string }) {
           </div>
           <div className="max-w-56 rounded-xl bg-secondary/70 p-3">
             <p className="flex items-center gap-2 text-xs font-semibold">
-              <RefreshCw className="h-4 w-4 text-primary" /> Hitavir-synced progress
+              <GraduationCap className="h-4 w-4 text-primary" /> Course sequence
             </p>
             <p className="mt-2 text-xs leading-5 text-muted-foreground">
-              {syncState === "signed_out"
-                ? "Sign in with the same email used on Hitavir to synchronize completion."
-                : syncState === "unavailable"
-                  ? "Hitavir completion integration is awaiting configuration."
-                  : `${completed}/${courses.length} courses verified as complete.`}
+              Progress is self-paced; completion is not inferred from opening a course.
             </p>
-            <Progress value={percentage} className="mt-2" />
           </div>
         </div>
       </div>
 
       <ol className="mt-5 space-y-4">
         {courses.map((course, index) => {
-          const progress = items[course.id];
           return (
             <li key={course.id} className="relative rounded-2xl border bg-card p-5 sm:p-6">
               <div className="flex items-start gap-4">
@@ -69,16 +58,7 @@ export function RoleCoursePath({ targetRole }: { targetRole: string }) {
                       <h4 className="mt-1 text-lg font-semibold">{course.title}</h4>
                     </div>
                     <span className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium text-muted-foreground">
-                      {progress?.status === "completed" ? (
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                      ) : (
-                        <RefreshCw className="h-4 w-4" />
-                      )}
-                      {progress?.status === "completed"
-                        ? "Completed on Hitavir"
-                        : progress
-                          ? `${progress.progressPercent}% on Hitavir`
-                          : "Awaiting Hitavir completion"}
+                      Self-paced
                     </span>
                   </div>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{course.summary}</p>

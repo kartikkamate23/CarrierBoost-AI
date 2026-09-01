@@ -38,3 +38,6 @@ dist-ssr
 
 # Vercel
 .vercel
+
+# Local checkout used to extract the BrihatLabs catalog; source is copied into src/lib.
+.brihatlabs-source/
