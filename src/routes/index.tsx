@@ -13,6 +13,7 @@ import { MentorSection } from "@/components/marketing/mentor-section";
 import { TestimonialsSection } from "@/components/marketing/testimonials-section";
 import { FaqSection } from "@/components/marketing/faq-section";
 import { CtaSection } from "@/components/marketing/cta-section";
+import { LaunchPopup } from "@/components/marketing/launch-popup";
 
 const description =
   "Score your resume against a target role on a transparent, versioned rubric, then close every gap with BrihatLabs courses, portfolio projects and interview practice. Free to start, no account required.";
@@ -49,6 +50,7 @@ function LandingPage() {
         <CtaSection />
       </main>
       <Footer />
+      <LaunchPopup />
     </div>
   );
 }
