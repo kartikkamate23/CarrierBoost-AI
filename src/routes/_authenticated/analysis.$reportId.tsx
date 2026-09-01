@@ -26,7 +26,7 @@ import { EmptyState } from "@/components/patterns/empty-state";
 import { SkeletonMetricGrid, SkeletonPageHeader } from "@/components/patterns/skeletons";
 import { RoleCoursePath } from "@/components/role-course-path";
 import { createRoadmap, type CareerAnalysis } from "@/lib/career-engine";
-import { hitavirCoursePath, recommendHitavirCourses } from "@/lib/hitavir-courses";
+import { brihatlabsCoursePath, recommendBrihatLabsCourses } from "@/lib/brihatlabs-courses";
 
 export const Route = createFileRoute("/_authenticated/analysis/$reportId")({
   component: AnalysisPage,
@@ -72,20 +72,20 @@ type Report = {
   score_breakdown: CareerAnalysis | null;
 };
 
-function getHitavirRecommendations(report: Report): Course[] {
+function getBrihatLabsRecommendations(report: Report): Course[] {
   const skillKeys = report.score_breakdown?.gaps.map((gap) => gap.key) ?? report.missing_keywords;
-  return recommendHitavirCourses(skillKeys, 6, report.target_role ?? "").map((course) => ({
+  return recommendBrihatLabsCourses(skillKeys, 6, report.target_role ?? "").map((course) => ({
     title: course.title,
-    platform: "Hitavir Tech",
+    platform: "BrihatLabs",
     level: course.categories.includes("Foundations") ? "Beginner" : "All levels",
     duration: course.duration,
     free: false,
     access: "Enrolled access",
-    url: hitavirCoursePath(course.id),
+    url: brihatlabsCoursePath(course.id),
   }));
 }
 
-function getHitavirRoadmap(report: Report): Roadmap[] {
+function getBrihatLabsRoadmap(report: Report): Roadmap[] {
   if (!report.score_breakdown) return report.career_roadmap;
   const stages = ["Foundation", "Core skills", "Applied practice", "Career proof"];
   return createRoadmap(report.score_breakdown, {
@@ -187,7 +187,7 @@ function AnalysisPage() {
     );
     writeBlock(
       "Career roadmap",
-      getHitavirRoadmap(report).flatMap((r) => [
+      getBrihatLabsRoadmap(report).flatMap((r) => [
         `${r.stage} (${r.timeframe})`,
         ...r.items.map((i) => `  • ${i}`),
       ]),
@@ -195,7 +195,7 @@ function AnalysisPage() {
     writeBlock("Priority skills to learn", report.skill_gap?.priority?.map((s) => `• ${s}`) ?? []);
     writeBlock(
       "Recommended courses",
-      getHitavirRecommendations(report).map(
+      getBrihatLabsRecommendations(report).map(
         (c) =>
           `• ${c.title} — ${c.platform} (${c.level}, ${c.duration})${c.access ? ` [${c.access}]` : c.free ? " [Free]" : ""}`,
       ),
@@ -227,8 +227,8 @@ function AnalysisPage() {
     );
   }
   const refinedAnalysis = report.score_breakdown;
-  const displayedCourses = getHitavirRecommendations(report);
-  const displayedRoadmap = getHitavirRoadmap(report);
+  const displayedCourses = getBrihatLabsRecommendations(report);
+  const displayedRoadmap = getBrihatLabsRoadmap(report);
 
   return (
     <div className="space-y-8">
@@ -431,7 +431,7 @@ function AnalysisPage() {
                         rel="noopener noreferrer"
                         className="mt-4 inline-flex items-center text-xs font-medium text-primary hover:underline"
                       >
-                        Open Hitavir Tech course <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                        Open BrihatLabs course <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
                       </a>
                     )}
                   </motion.div>

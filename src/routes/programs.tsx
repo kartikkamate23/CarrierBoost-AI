@@ -6,7 +6,7 @@ import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { hitavirCourses } from "@/lib/hitavir-courses";
+import { brihatlabsCourses } from "@/lib/brihatlabs-courses";
 import { loadTargetRole, saveTargetRole } from "@/lib/target-role";
 
 export const Route = createFileRoute("/programs")({
@@ -18,7 +18,7 @@ export function Programs() {
   const [targetRole, setTargetRole] = useState("Data Engineer");
   useEffect(() => setTargetRole(loadTargetRole()), []);
   useEffect(() => saveTargetRole(targetRole), [targetRole]);
-  const courses = useMemo(() => hitavirCourses, []);
+  const courses = useMemo(() => brihatlabsCourses, []);
 
   return (
     <div className="min-h-screen">

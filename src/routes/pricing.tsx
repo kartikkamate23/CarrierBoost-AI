@@ -65,7 +65,7 @@ const plans: Plan[] = [
       "Unlimited guest resume analysis",
       "All explainable score dimensions",
       "Priority actions and evidence gaps",
-      "Role-matched Hitavir Tech course path",
+      "Role-matched BrihatLabs course path",
       "InterviewIQ practice and answer feedback",
       "AI Mentor across eight coaching modes",
       "Saved reports and score history with an account",
@@ -114,7 +114,7 @@ const comparison: Array<{
 }> = [
   { feature: "Guest resume analysis", free: true, pro: true, career: true },
   { feature: "Explainable score breakdown", free: true, pro: true, career: true },
-  { feature: "Hitavir Tech course path", free: true, pro: true, career: true },
+  { feature: "BrihatLabs course path", free: true, pro: true, career: true },
   { feature: "InterviewIQ practice", free: true, pro: true, career: true },
   { feature: "AI Mentor", free: true, pro: true, career: true },
   { feature: "Saved reports and history", free: "With an account", pro: true, career: true },
@@ -147,9 +147,9 @@ const faqs = [
       "Because they have not been decided. Publishing a number we might change would be worse than showing you an honest dash. When pricing is set, this page will say so.",
   },
   {
-    question: "What about the Hitavir Tech courses?",
+    question: "What about the BrihatLabs courses?",
     answer:
-      "Course content is hosted in the Hitavir Tech learning portal and may require separate enrolment there. CareerBoost AI maps your detected skill gaps onto that catalogue; it does not resell the courses.",
+      "Course content is hosted in the BrihatLabs learning portal and may require separate enrolment there. CareerBoost AI maps your detected skill gaps onto that catalogue; it does not resell the courses.",
   },
 ];
 

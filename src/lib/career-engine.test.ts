@@ -9,11 +9,11 @@ import {
   SCORE_WEIGHTS,
 } from "./career-engine.ts";
 import {
-  findHitavirCourse,
+  findBrihatLabsCourse,
   getCoursesForTargetRole,
-  hitavirCourses,
-  recommendHitavirCourses,
-} from "./hitavir-courses.ts";
+  brihatlabsCourses,
+  recommendBrihatLabsCourses,
+} from "./brihatlabs-courses.ts";
 
 const resume = `Summary Data engineer with experience. Skills Python SQL Docker AWS.
 Experience Built ETL data pipeline that reduced processing time by 42% for 2M records.
@@ -130,24 +130,24 @@ test("roadmap respects requested duration and weekly availability", () => {
 });
 
 test("course recommendations use only BrihatLabs catalog links", () => {
-  const recommendations = recommendHitavirCourses(["sql", "machine learning"], 6);
+  const recommendations = recommendBrihatLabsCourses(["sql", "machine learning"], 6);
   assert.ok(recommendations.some((course) => course.id === "sql"));
   assert.ok(recommendations.some((course) => course.id === "machine-learning"));
-  assert.ok(recommendations.every((course) => hitavirCourses.includes(course)));
+  assert.ok(recommendations.every((course) => brihatlabsCourses.includes(course)));
   assert.equal(
-    hitavirCourses.find((course) => course.id === "data-analytics")?.url,
+    brihatlabsCourses.find((course) => course.id === "data-analytics")?.url,
     "/courses/data-analytics",
   );
   assert.ok(
-    hitavirCourses.every((course) =>
+    brihatlabsCourses.every((course) =>
       course.url.startsWith("/courses/"),
     ),
   );
   assert.equal(
-    hitavirCourses.find((course) => course.id === "python")?.url,
+    brihatlabsCourses.find((course) => course.id === "python")?.url,
     "/courses/python",
   );
-  assert.equal(findHitavirCourse("data-analytics")?.id, "data-analytics");
+  assert.equal(findBrihatLabsCourse("data-analytics")?.id, "data-analytics");
 });
 
 test("course catalog is limited and changes with the target role", () => {

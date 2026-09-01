@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { findHitavirCourse } from "@/lib/hitavir-courses";
+import { findBrihatLabsCourse } from "@/lib/brihatlabs-courses";
 
 type CompletionEvent = {
   eventId?: unknown;
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/hitavir-completion")({
         const secret = process.env.HITAVIR_WEBHOOK_SECRET;
         if (!secret) {
           return Response.json(
-            { error: "Hitavir completion sync is not configured." },
+            { error: "course completion sync is not configured." },
             { status: 503 },
           );
         }
@@ -68,7 +68,7 @@ export const Route = createFileRoute("/api/hitavir-completion")({
         const learnerEmail =
           typeof event.learnerEmail === "string" ? event.learnerEmail.trim().toLowerCase() : "";
         const requestedSlug = typeof event.courseSlug === "string" ? event.courseSlug.trim() : "";
-        const course = findHitavirCourse(requestedSlug);
+        const course = findBrihatLabsCourse(requestedSlug);
         const status = event.status === "completed" ? "completed" : "in_progress";
 
         if (!eventId || eventId.length > 160 || !emailPattern.test(learnerEmail) || !course) {
@@ -106,7 +106,7 @@ export const Route = createFileRoute("/api/hitavir-completion")({
         );
 
         if (error) {
-          console.error("[Hitavir completion webhook]", error);
+          console.error("[course completion webhook]", error);
           return Response.json({ error: "Unable to store completion event." }, { status: 500 });
         }
 

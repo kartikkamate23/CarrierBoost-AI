@@ -9,9 +9,9 @@ import {
 import { ProductPage } from "@/components/product-page";
 import { Button } from "@/components/ui/button";
 import {
-  findHitavirCourse,
+  findBrihatLabsCourse,
   getCoursesForTargetRole,
-} from "@/lib/hitavir-courses";
+} from "@/lib/brihatlabs-courses";
 import { loadTargetRole } from "@/lib/target-role";
 
 export const Route = createFileRoute("/courses/$courseId")({
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/courses/$courseId")({
 
 function CoursePage() {
   const { courseId } = useParams({ from: "/courses/$courseId" });
-  const course = findHitavirCourse(courseId);
+  const course = findBrihatLabsCourse(courseId);
   const [targetRole, setTargetRole] = useState("Data Engineer");
 
   useEffect(() => {

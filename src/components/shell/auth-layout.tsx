@@ -23,7 +23,7 @@ const points = [
   {
     icon: GraduationCap,
     title: "Gaps mapped to real courses",
-    body: "Detected weaknesses connect to the verified Hitavir Tech catalogue, not a generic skills list.",
+    body: "Detected weaknesses connect to the verified BrihatLabs catalogue, not a generic skills list.",
   },
   {
     icon: MessageSquareText,

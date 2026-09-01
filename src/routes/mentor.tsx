@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { InlineError } from "@/components/patterns/error-state";
 import { askMentor } from "@/lib/mentor.functions";
-import { getCoursesForTargetRole, hitavirCourses } from "@/lib/hitavir-courses";
+import { getCoursesForTargetRole, brihatlabsCourses } from "@/lib/brihatlabs-courses";
 import { mentorModes } from "@/lib/program-data";
 import { loadTargetRole, saveTargetRole } from "@/lib/target-role";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ type Provider = "openai" | "lovable" | "offline" | null;
 const welcome: Message = {
   role: "assistant",
   content:
-    "I’m your CareerBoost industry mentor. Select a Hitavir Tech course and coaching mode, then share the concept, code, project decision, or interview skill you want to improve. I’ll diagnose before advising and require evidence before claiming mastery.",
+    "I’m your CareerBoost industry mentor. Select a BrihatLabs course and coaching mode, then share the concept, code, project decision, or interview skill you want to improve. I’ll diagnose before advising and require evidence before claiming mastery.",
 };
 
 const quickPrompts: Record<string, string[]> = {
@@ -94,7 +94,7 @@ function Mentor() {
         setMessages(deduplicated);
       }
       if (saved?.mode && mentorModes.some((item) => item === saved.mode)) setMode(saved.mode);
-      if (saved?.courseId && hitavirCourses.some((course) => course.id === saved.courseId))
+      if (saved?.courseId && brihatlabsCourses.some((course) => course.id === saved.courseId))
         setCourseId(saved.courseId);
       if (saved?.targetRole) setTargetRole(saved.targetRole);
       else setTargetRole(loadTargetRole());
@@ -185,7 +185,7 @@ function Mentor() {
         </h1>
         <p className="mt-2 max-w-3xl text-body text-muted-foreground">
           Diagnostic teaching, progressive hints, code and project reviews, adaptive quizzes,
-          interview practice and evidence-based mastery checks — grounded in the Hitavir Tech course
+          interview practice and evidence-based mastery checks — grounded in the BrihatLabs course
           outline.
         </p>
       </header>
@@ -208,7 +208,7 @@ function Mentor() {
             </div>
             <div>
               <Label htmlFor="mentor-course" className="text-small font-medium">
-                Hitavir Tech course
+                BrihatLabs course
               </Label>
               <select
                 id="mentor-course"

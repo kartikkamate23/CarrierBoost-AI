@@ -30,7 +30,7 @@ export const productNav = [
   {
     to: "/skillpath",
     label: "SkillPath",
-    description: "Sequenced Hitavir Tech courses for your role",
+    description: "Sequenced BrihatLabs courses for your role",
   },
   {
     to: "/mentor",
@@ -59,7 +59,7 @@ export const resourcesNav = [
   {
     to: "/programs",
     label: "Course catalog",
-    description: "The full Hitavir Tech library",
+    description: "The full BrihatLabs library",
   },
   {
     to: "/sample-report",

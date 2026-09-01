@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Clock3, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Section, SectionHeading, Reveal, RevealItem } from "@/components/marketing/section";
-import { featuredHitavirCourses, hitavirCourses } from "@/lib/hitavir-courses";
+import { featuredBrihatLabsCourses, brihatlabsCourses } from "@/lib/brihatlabs-courses";
 
 /**
  * Featured courses, read straight from the BrihatLabs catalogue adapter.
@@ -13,11 +13,11 @@ export function CoursesSection() {
       <SectionHeading
         eyebrow="BrihatLabs Courses"
         title="Gaps map onto a real course catalogue."
-        body={`CareerBoost connects detected skill gaps to ${hitavirCourses.length} BrihatLabs courses. Explore the curriculum directly in the CareerBoost course experience.`}
+        body={`CareerBoost connects detected skill gaps to ${brihatlabsCourses.length} BrihatLabs courses. Explore the curriculum directly in the CareerBoost course experience.`}
       />
 
       <Reveal className="mt-14 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {featuredHitavirCourses.map((course) => (
+        {featuredBrihatLabsCourses.map((course) => (
           <RevealItem key={course.id} className="surface-card lift flex h-full flex-col p-6">
             <div className="flex items-start justify-between gap-3">
               <span
@@ -60,7 +60,7 @@ export function CoursesSection() {
       <div className="mt-10 text-center">
         <Button asChild size="lg" variant="ghost" className="h-12">
           <Link to="/programs">
-            Browse all {hitavirCourses.length} courses
+            Browse all {brihatlabsCourses.length} courses
             <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
           </Link>
         </Button>

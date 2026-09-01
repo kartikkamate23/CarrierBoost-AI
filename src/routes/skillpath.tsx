@@ -5,7 +5,7 @@ import { ProductPage } from "@/components/product-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getCoursesForTargetRole } from "@/lib/hitavir-courses";
+import { getCoursesForTargetRole } from "@/lib/brihatlabs-courses";
 import { loadTargetRole, saveTargetRole } from "@/lib/target-role";
 
 export const Route = createFileRoute("/skillpath")({

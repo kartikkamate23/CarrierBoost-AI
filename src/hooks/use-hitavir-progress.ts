@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type HitavirProgress = {
+export type BrihatLabsProgress = {
   courseSlug: string;
   status: "in_progress" | "completed";
   progressPercent: number;
@@ -10,10 +10,10 @@ export type HitavirProgress = {
 
 type SyncState = "loading" | "ready" | "signed_out" | "unavailable";
 
-export function useHitavirProgress(courseIds: string[]) {
+export function useBrihatLabsProgress(courseIds: string[]) {
   const courseKey = [...courseIds].sort().join("|");
   const stableCourseIds = useMemo(() => courseKey.split("|").filter(Boolean), [courseKey]);
-  const [items, setItems] = useState<Record<string, HitavirProgress>>({});
+  const [items, setItems] = useState<Record<string, BrihatLabsProgress>>({});
   const [syncState, setSyncState] = useState<SyncState>("loading");
 
   useEffect(() => {

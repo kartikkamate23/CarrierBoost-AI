@@ -2,7 +2,7 @@ import { BarChart3, GraduationCap, MessageSquareText, Sparkles } from "lucide-re
 import { Stat, StatGroup } from "@/components/patterns/stat";
 import { Reveal } from "@/components/marketing/section";
 import { sampleAnalysis } from "@/components/marketing/sample-analysis";
-import { hitavirCourses } from "@/lib/hitavir-courses";
+import { brihatlabsCourses } from "@/lib/brihatlabs-courses";
 import { interviewRoles } from "@/lib/interview-questions";
 import { mentorModes } from "@/lib/program-data";
 import { trustNotice } from "@/lib/site";
@@ -34,7 +34,7 @@ export function TrustSection() {
             />
             <Stat
               icon={GraduationCap}
-              value={hitavirCourses.length}
+              value={brihatlabsCourses.length}
               label="BrihatLabs courses"
               detail="Mapped to detected skill gaps"
             />

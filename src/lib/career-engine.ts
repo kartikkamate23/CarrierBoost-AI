@@ -1,4 +1,4 @@
-import { hitavirCoursePath, recommendHitavirCourses } from "./hitavir-courses.ts";
+import { brihatlabsCoursePath, recommendBrihatLabsCourses } from "./brihatlabs-courses.ts";
 
 export const RUBRIC_VERSION = "careerboost-2026.2";
 
@@ -790,7 +790,7 @@ export type RoadmapPreferences = {
 };
 export function createRoadmap(analysis: CareerAnalysis, preferences: RoadmapPreferences) {
   const weeks = Math.max(2, Math.min(24, preferences.weeks));
-  const courses = recommendHitavirCourses(
+  const courses = recommendBrihatLabsCourses(
     analysis.gaps.map((gap) => gap.key),
     Math.min(weeks, 8),
     preferences.role,
@@ -806,12 +806,12 @@ export function createRoadmap(analysis: CareerAnalysis, preferences: RoadmapPref
       course: {
         id: course.id,
         title: course.title,
-        url: hitavirCoursePath(course.id),
+        url: brihatlabsCoursePath(course.id),
         duration: course.duration,
       },
       items: [
         `${preferences.style} study: ${course.summary}`,
-        `Complete the Hitavir Tech course work (${course.duration})`,
+        `Complete the BrihatLabs course work (${course.duration})`,
         index === weeks - 1
           ? "Re-run ResumeIQ and verify which evidence gaps remain"
           : `Connect the course work to your ${skill} evidence gap`,

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { Clock3, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getCoursesForTargetRole } from "@/lib/hitavir-courses";
+import { getCoursesForTargetRole } from "@/lib/brihatlabs-courses";
 
 const stages = [
   "Foundation",

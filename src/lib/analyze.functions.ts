@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 import { analyzeCareerReadiness, createRoadmap } from "@/lib/career-engine";
-import { hitavirCoursePath, recommendHitavirCourses } from "@/lib/hitavir-courses";
+import { brihatlabsCoursePath, recommendBrihatLabsCourses } from "@/lib/brihatlabs-courses";
 
 const analysisSchema = z.object({
   resumeId: z.string().uuid(),
@@ -91,7 +91,7 @@ Use this exact schema. All arrays must be populated with realistic, specific, ac
 Rules:
 - Provide 4 entries in career_roadmap (Beginner, Intermediate, Advanced, Expert).
 - Provide 8-12 interview_questions covering all three categories.
-- Leave recommended_courses empty. The application injects verified Hitavir Tech courses.
+- Leave recommended_courses empty. The application injects verified BrihatLabs courses.
 - Provide 4-6 reference_videos.
 - Be honest, specific, and constructive. Use the candidate's actual content.
 - Output ONLY the JSON object, nothing else.`;
@@ -148,18 +148,18 @@ export const analyzeResume = createServerFn({ method: "POST" })
       throw new Error("AI returned malformed response. Please try again.");
     }
 
-    const recommendedCourses = recommendHitavirCourses(
+    const recommendedCourses = recommendBrihatLabsCourses(
       deterministic.gaps.map((gap) => gap.key),
       6,
       data.targetRole,
     ).map((course) => ({
       title: course.title,
-      platform: "Hitavir Tech",
+      platform: "BrihatLabs",
       level: course.categories.includes("Foundations") ? "Beginner" : "All levels",
       duration: course.duration,
       free: false,
       access: "Enrolled access",
-      url: hitavirCoursePath(course.id),
+      url: brihatlabsCoursePath(course.id),
     }));
     const roadmapStages = ["Foundation", "Core skills", "Applied practice", "Career proof"];
     const careerRoadmap = createRoadmap(deterministic, {

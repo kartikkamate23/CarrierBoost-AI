@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { InlineError } from "@/components/patterns/error-state";
-import { hitavirCourses } from "@/lib/hitavir-courses";
+import { brihatlabsCourses } from "@/lib/brihatlabs-courses";
 
 export const Route = createFileRoute("/projectlab")({
   component: ProjectLab,
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/projectlab")({
 });
 
 function ProjectLab() {
-  const project = hitavirCourses.find((course) => course.id === "data-engineering-on-aws")!;
+  const project = brihatlabsCourses.find((course) => course.id === "data-engineering-on-aws")!;
   const [repo, setRepo] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -59,14 +59,14 @@ function ProjectLab() {
 
   return (
     <ProductPage
-      eyebrow="ProjectLab · Hitavir Tech course proof"
+      eyebrow="ProjectLab · BrihatLabs course proof"
       title="HitaVir Retail AWS Data Pipeline"
       description={`Portfolio proof aligned to “${project.title}”: ${project.summary}`}
       showIntro={false}
     >
       <header className="mb-7">
         <p className="text-caption uppercase text-primary">
-          ProjectLab · Hitavir Tech course proof
+          ProjectLab · BrihatLabs course proof
         </p>
         <h1 className="mt-2 font-display text-h2 text-foreground">
           HitaVir Retail AWS Data Pipeline
@@ -80,7 +80,7 @@ function ProjectLab() {
         <div className="min-w-0 space-y-4">
           <Card icon={RouteIcon} title="Problem statement">
             Build an end-to-end HitaVir Retail data pipeline using the AWS services covered by the
-            Hitavir Tech course, from S3 ingestion through transformation and analytics.
+            BrihatLabs course, from S3 ingestion through transformation and analytics.
           </Card>
 
           <Card icon={RouteIcon} title="Architecture guidance">
