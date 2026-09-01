@@ -2,6 +2,52 @@
 @source "../src";
 @import "tw-animate-css";
 
+@keyframes ambient-drift-one {
+  0%, 100% { transform: translate3d(-5%, -3%, 0) scale(1); }
+  50% { transform: translate3d(8%, 6%, 0) scale(1.12); }
+}
+
+@keyframes ambient-drift-two {
+  0%, 100% { transform: translate3d(5%, 4%, 0) scale(1.08); }
+  50% { transform: translate3d(-8%, -5%, 0) scale(0.94); }
+}
+
+.ambient-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% -10%, color-mix(in oklch, var(--primary) 8%, transparent), transparent 42%);
+}
+
+.ambient-orb {
+  position: absolute;
+  width: min(42vw, 38rem);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  filter: blur(70px);
+  opacity: 0.16;
+  will-change: transform;
+}
+
+.ambient-orb-one { top: 6%; left: -12%; background: var(--primary-glow); animation: ambient-drift-one 18s ease-in-out infinite; }
+.ambient-orb-two { top: 36%; right: -14%; background: var(--brand-accent); animation: ambient-drift-two 22s ease-in-out infinite; }
+.ambient-orb-three { bottom: -14%; left: 35%; width: min(30vw, 26rem); background: var(--primary); opacity: 0.09; animation: ambient-drift-one 26s ease-in-out infinite reverse; }
+
+.ambient-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  background-image: linear-gradient(color-mix(in oklch, var(--primary) 10%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklch, var(--primary) 10%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-orb { animation: none; }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* ---------------------------------------------------------------------------

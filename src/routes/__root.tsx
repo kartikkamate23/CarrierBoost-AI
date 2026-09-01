@@ -14,6 +14,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { Toaster } from "@/components/ui/sonner";
 import { PageTransition } from "@/components/page-transition";
+import { AmbientBackground } from "@/components/ambient-background";
 
 export function NotFoundComponent() {
   return (
@@ -153,7 +154,10 @@ function RootComponent() {
       <MotionConfig reducedMotion="user">
         <ThemeProvider>
           <AuthProvider>
-            <PageTransition><Outlet /></PageTransition>
+            <AmbientBackground />
+            <PageTransition>
+              <Outlet />
+            </PageTransition>
             <Toaster richColors position="top-right" />
           </AuthProvider>
         </ThemeProvider>

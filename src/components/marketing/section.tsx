@@ -21,8 +21,12 @@ export function Section({
   tone?: "default" | "muted" | "mesh";
 }) {
   return (
-    <section
+    <motion.section
       id={id}
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.12 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
         "scroll-mt-20 py-20 lg:py-28",
         tone === "muted" && "border-y bg-card/40",
@@ -31,7 +35,7 @@ export function Section({
       )}
     >
       <div className={cn("container mx-auto max-w-7xl px-4", containerClassName)}>{children}</div>
-    </section>
+    </motion.section>
   );
 }
 
