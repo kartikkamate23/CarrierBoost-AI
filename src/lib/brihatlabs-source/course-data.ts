@@ -327,7 +327,7 @@ function quizQuestions(moduleTitle: string, subject: Course["subject"]): QuizQue
   // stable but different assessment instead of the same quiz repeated.
   const moduleSeed = Array.from(moduleTitle).reduce((sum, character) => sum + character.charCodeAt(0), 0);
   const rotated = shared.map((_, index) => shared[(index + moduleSeed) % shared.length]);
-  const contextual: [string, string[], number, string] = [`What is the best way to learn ${moduleTitle}?`, ["Use small examples, inspect results, then practice", "Memorize labels only", "Skip every exercise", "Avoid feedback"], 0, `Progress through ${moduleTitle} comes from combining intuition, visible examples, practice, and feedback.`];
+  const contextual: [string, string[], number, string] = [`Which skill is central to the ${moduleTitle} module?`, [moduleTitle, "Memorize labels without practice", "Skip validation", "Avoid feedback"], 0, `The ${moduleTitle} skill is developed through intuition, visible examples, deliberate practice, and feedback.`];
   return [contextual, ...rotated].map(([prompt, options, answer, explanation], index) => ({ id: `${slugify(moduleTitle)}-q${index + 1}`, prompt, options, answer, explanation, }));
 }
 
