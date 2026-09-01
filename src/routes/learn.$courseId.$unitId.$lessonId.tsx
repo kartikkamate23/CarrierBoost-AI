@@ -48,6 +48,9 @@ function LessonPage() {
   if (!course || !current) return <ProductPage eyebrow="BrihatLabs Courses" title="Lesson not found" description="This lesson is not in the current course catalog."><Button asChild variant="outline"><Link to="/programs">Back to courses</Link></Button></ProductPage>;
   const assessmentLessons = course.units.flatMap((unit) => unit.lessons.filter((lesson) => lesson.type === "quiz"));
   const allAssessmentsPassed = assessmentLessons.length > 0 && assessmentLessons.every((lesson) => (progress.quizScores[lesson.id] ?? 0) > 75);
+  const requestedUnitIndex = course.units.findIndex((unit) => unit.id === unitId);
+  const priorModulesPassed = course.units.slice(0, Math.max(0, requestedUnitIndex)).every((unit) => unit.lessons.filter((lesson) => lesson.type === "quiz").every((lesson) => (progress.quizScores[lesson.id] ?? 0) > 75));
+  if (requestedUnitIndex > 0 && !priorModulesPassed) return <ProductPage eyebrow="Module locked" title="Pass the previous module quiz first" description="Score more than 75% on the previous module assessment to continue to this section."><Button asChild variant="outline"><Link to="/courses/$courseId" params={{ courseId: course.slug }}>Back to course</Link></Button></ProductPage>;
   if (current.lesson.type === "project" && !allAssessmentsPassed) return <ProductPage eyebrow="Final project locked" title="Complete the module assessments first" description="Score more than 75% on every module quiz to unlock the final project problem statement."><Button asChild variant="outline"><Link to="/courses/$courseId" params={{ courseId: course.slug }}>Back to course</Link></Button></ProductPage>;
   const currentIndex = lessons.findIndex(({ lesson }) => lesson.id === current.lesson.id);
   const previous = currentIndex > 0 ? lessons[currentIndex - 1] : undefined;
