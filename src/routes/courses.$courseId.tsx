@@ -7,7 +7,7 @@ import {
   Clock3,
 } from "lucide-react";
 import { ProductPage } from "@/components/product-page";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   findBrihatLabsCourse,
   getCoursesForTargetRole,
@@ -82,11 +82,19 @@ function CoursePage() {
             ))}
           </div>
           <div className="mt-4">
-            <Button asChild size="sm" className="min-w-44">
-              <Link to="/courses/$courseId" params={{ courseId: course.id }} hash="content">
+            {course.brihatlabs.units[0]?.lessons[0] ? (
+              <Link
+                to="/learn/$courseId/$unitId/$lessonId"
+                params={{
+                  courseId: course.brihatlabs.slug,
+                  unitId: course.brihatlabs.units[0].id,
+                  lessonId: course.brihatlabs.units[0].lessons[0].id,
+                }}
+                className={buttonVariants({ size: "sm", className: "min-w-44" })}
+              >
                 Start course <ArrowRight className="ml-2 h-3.5 w-3.5" />
               </Link>
-            </Button>
+            ) : null}
             {course.brihatlabs.units[0]?.lessons[0] ? (
               <Button asChild size="sm" variant="outline" className="ml-2">
                 <Link

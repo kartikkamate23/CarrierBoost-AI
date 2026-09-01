@@ -105,7 +105,14 @@ function SkillPath() {
             </p>
             {nextCourse ? (
               <Button asChild className="mt-4 w-full">
-                <Link to="/courses/$courseId" params={{ courseId: nextCourse.id }}>
+                <Link
+                  to="/learn/$courseId/$unitId/$lessonId"
+                  params={{
+                    courseId: nextCourse.brihatlabs.slug,
+                    unitId: nextCourse.brihatlabs.units[0].id,
+                    lessonId: nextCourse.brihatlabs.units[0].lessons[0].id,
+                  }}
+                >
                   Continue: {nextCourse.title}
                 </Link>
               </Button>
