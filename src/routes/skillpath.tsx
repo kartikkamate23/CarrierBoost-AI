@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Award, GraduationCap } from "lucide-react";
 import { ProductPage } from "@/components/product-page";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getCoursesForTargetRole } from "@/lib/brihatlabs-courses";
@@ -73,11 +73,13 @@ function SkillPath() {
                       </span>
                     ))}
                   </div>
-                  <Button asChild variant="outline" size="sm" className="mt-4">
-                    <Link to="/courses/$courseId" params={{ courseId: course.id }}>
-                      View course content
-                    </Link>
-                  </Button>
+                  <Link
+                    to="/courses/$courseId"
+                    params={{ courseId: course.id }}
+                    className={buttonVariants({ variant: "outline", size: "sm", className: "mt-4" })}
+                  >
+                    View course content
+                  </Link>
                 </div>
               </div>
             </article>

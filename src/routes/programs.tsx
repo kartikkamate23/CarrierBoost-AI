@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BookOpenCheck, Clock3, GraduationCap } from "lucide-react";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { brihatlabsCourses } from "@/lib/brihatlabs-courses";
@@ -90,11 +90,13 @@ export function Programs() {
                   )}
                   {course.duration}
                 </p>
-                <Button asChild variant="outline" className="mt-5 w-full">
-                  <Link to="/courses/$courseId" params={{ courseId: course.id }}>
-                    View course content
-                  </Link>
-                </Button>
+                <Link
+                  to="/courses/$courseId"
+                  params={{ courseId: course.id }}
+                  className={buttonVariants({ variant: "outline", className: "mt-5 w-full" })}
+                >
+                  View course content
+                </Link>
               </article>
             ))}
           </div>

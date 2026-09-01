@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Clock3, GraduationCap } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Section, SectionHeading, Reveal, RevealItem } from "@/components/marketing/section";
 import { featuredBrihatLabsCourses, brihatlabsCourses } from "@/lib/brihatlabs-courses";
 
@@ -48,11 +48,13 @@ export function CoursesSection() {
               ))}
             </div>
 
-            <Button asChild variant="outline" className="mt-5 w-full">
-              <Link to="/courses/$courseId" params={{ courseId: course.id }}>
-                View course content
-              </Link>
-            </Button>
+            <Link
+              to="/courses/$courseId"
+              params={{ courseId: course.id }}
+              className={buttonVariants({ variant: "outline", className: "mt-5 w-full" })}
+            >
+              View course content
+            </Link>
           </RevealItem>
         ))}
       </Reveal>
