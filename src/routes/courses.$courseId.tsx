@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { ProductPage } from "@/components/product-page";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useCourseProgress } from "@/hooks/use-course-progress";
 import {
   findBrihatLabsCourse,
   getCoursesForTargetRole,
@@ -22,6 +24,8 @@ export const Route = createFileRoute("/courses/$courseId")({
 function CoursePage() {
   const { courseId } = useParams({ from: "/courses/$courseId" });
   const course = findBrihatLabsCourse(courseId);
+  const courseLessonIds = course?.brihatlabs.units.flatMap((unit) => unit.lessons.map((lesson) => lesson.id)) ?? [];
+  const progress = useCourseProgress(course?.brihatlabs.slug ?? courseId, courseLessonIds);
   const [targetRole, setTargetRole] = useState("Data Engineer");
 
   useEffect(() => {
@@ -205,10 +209,9 @@ function CoursePage() {
             <div className="surface-card p-5">
               <BookOpenCheck className="h-6 w-6 text-primary" />
               <h2 className="mt-3 font-semibold">Course progress</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Progress is presented from the available course outline. Completion tracking is not
-                inferred from opening a lesson.
-              </p>
+              <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground"><span>{progress.completedCount}/{courseLessonIds.length} lessons</span><span className="font-semibold text-primary">{progress.progressPercent}%</span></div>
+              <Progress value={progress.progressPercent} className="mt-2 h-2" />
+              <p className="mt-2 text-xs text-muted-foreground">Complete each lesson to reach 100%. Progress is saved on this device.</p>
             </div>
           </aside>
         </div>
