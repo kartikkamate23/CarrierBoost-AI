@@ -27,6 +27,7 @@ import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as AnalyzeRouteImport } from './routes/analyze'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiHitavirCompletionRouteImport } from './routes/api.hitavir-completion'
@@ -127,6 +128,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesIndexRoute = CoursesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoursesRoute,
+} as any)
 const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
   id: '/$courseId',
   path: '/$courseId',
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/api/hitavir-completion': typeof ApiHitavirCompletionRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/courses/': typeof CoursesIndexRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
   '/learn/$courseId/$unitId/$lessonId': typeof LearnCourseIdUnitIdLessonIdRoute
@@ -213,7 +220,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analyze': typeof AnalyzeRoute
-  '/courses': typeof CoursesRouteWithChildren
   '/interviewiq': typeof InterviewiqRoute
   '/jobmatch': typeof JobmatchRoute
   '/login': typeof LoginRoute
@@ -235,6 +241,7 @@ export interface FileRoutesByTo {
   '/api/hitavir-completion': typeof ApiHitavirCompletionRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/courses': typeof CoursesIndexRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
   '/learn/$courseId/$unitId/$lessonId': typeof LearnCourseIdUnitIdLessonIdRoute
@@ -266,6 +273,7 @@ export interface FileRoutesById {
   '/api/hitavir-completion': typeof ApiHitavirCompletionRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/courses/$courseId': typeof CoursesCourseIdRoute
+  '/courses/': typeof CoursesIndexRoute
   '/_authenticated/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/_authenticated/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
   '/learn/$courseId/$unitId/$lessonId': typeof LearnCourseIdUnitIdLessonIdRoute
@@ -297,6 +305,7 @@ export interface FileRouteTypes {
     | '/api/hitavir-completion'
     | '/auth/callback'
     | '/courses/$courseId'
+    | '/courses/'
     | '/analysis/$reportId'
     | '/tools/cover-letter'
     | '/learn/$courseId/$unitId/$lessonId'
@@ -304,7 +313,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/analyze'
-    | '/courses'
     | '/interviewiq'
     | '/jobmatch'
     | '/login'
@@ -326,6 +334,7 @@ export interface FileRouteTypes {
     | '/api/hitavir-completion'
     | '/auth/callback'
     | '/courses/$courseId'
+    | '/courses'
     | '/analysis/$reportId'
     | '/tools/cover-letter'
     | '/learn/$courseId/$unitId/$lessonId'
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/api/hitavir-completion'
     | '/auth/callback'
     | '/courses/$courseId'
+    | '/courses/'
     | '/_authenticated/analysis/$reportId'
     | '/_authenticated/tools/cover-letter'
     | '/learn/$courseId/$unitId/$lessonId'
@@ -514,6 +524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/': {
+      id: '/courses/'
+      path: '/'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof CoursesIndexRouteImport
+      parentRoute: typeof CoursesRoute
+    }
     '/courses/$courseId': {
       id: '/courses/$courseId'
       path: '/$courseId'
@@ -609,10 +626,12 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 interface CoursesRouteChildren {
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
 const CoursesRouteChildren: CoursesRouteChildren = {
   CoursesCourseIdRoute: CoursesCourseIdRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
 }
 
 const CoursesRouteWithChildren =

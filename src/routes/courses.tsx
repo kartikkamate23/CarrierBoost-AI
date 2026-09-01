@@ -1,8 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Programs } from "./programs";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-/** Canonical course catalog entry point; /programs remains as a compatibility alias. */
+/** Shared route shell for the catalog and course-detail child routes. */
 export const Route = createFileRoute("/courses")({
-  component: Programs,
-  head: () => ({ meta: [{ title: "BrihatLabs Courses | CareerBoost AI" }] }),
+  component: CoursesLayout,
 });
+
+function CoursesLayout() {
+  return <Outlet />;
+}
