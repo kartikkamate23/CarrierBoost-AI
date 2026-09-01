@@ -336,7 +336,7 @@ function makeUnit(index: number, title: string, lessonTitles: string[], descript
     const quiz = /quiz|assessment/i.test(lessonTitle);
     const project = /build|project|prediction|classifier|segmentation|attrition|api/i.test(lessonTitle) && !quiz;
     const type: Lesson["type"] = quiz ? "quiz" : project ? "project" : "lesson";
-    return { id: slugify(lessonTitle), title: lessonTitle, type, duration: quiz ? "12 min" : project ? "20 min" : `${8 + (lessonIndex % 4) * 2} min`, description: quiz ? `Check your understanding of ${title}.` : `Learn ${lessonTitle.toLowerCase()} with intuition, a visual flow, practical examples, and clear takeaways.`, content: learningBlocks(lessonTitle, title, subject, type), questions: quiz ? quizQuestions(title, subject) : undefined };
+    return { id: `module-${index + 1}-${slugify(lessonTitle)}`, title: lessonTitle, type, duration: quiz ? "12 min" : project ? "20 min" : `${8 + (lessonIndex % 4) * 2} min`, description: quiz ? `Check your understanding of ${title}.` : `Learn ${lessonTitle.toLowerCase()} with intuition, a visual flow, practical examples, and clear takeaways.`, content: learningBlocks(lessonTitle, title, subject, type), questions: quiz ? quizQuestions(title, subject) : undefined };
   });
   return { id: `module-${index + 1}`, title, description, lessons };
 }

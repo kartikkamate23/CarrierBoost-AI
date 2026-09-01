@@ -172,7 +172,7 @@ function makeUnits(definitions: ModuleDefinition[], subject: SoftwareSubject): U
       const quiz = /quiz|assessment/i.test(lessonTitle);
       const project = /project|capstone|portfolio website|task management application|blog platform|job portal|e-commerce application|test a login system|playwright automation|performance testing/i.test(lessonTitle) && !quiz;
       const type: Lesson["type"] = quiz ? "quiz" : project ? "project" : "lesson";
-      return { id: slugify(lessonTitle), title: lessonTitle, type, duration: quiz ? "12 min" : project ? "24 min" : `${8 + (lessonIndex % 4) * 2} min`, description: quiz ? `Check your understanding of ${title}.` : `Understand ${lessonTitle.toLowerCase()}, see it in context, practice it, and learn how to validate the result.`, content: learningBlocks(lessonTitle, title, subject, type), questions: quiz ? quizQuestions(title, subject) : undefined };
+      return { id: `module-${index + 1}-${slugify(lessonTitle)}`, title: lessonTitle, type, duration: quiz ? "12 min" : project ? "24 min" : `${8 + (lessonIndex % 4) * 2} min`, description: quiz ? `Check your understanding of ${title}.` : `Understand ${lessonTitle.toLowerCase()}, see it in context, practice it, and learn how to validate the result.`, content: learningBlocks(lessonTitle, title, subject, type), questions: quiz ? quizQuestions(title, subject) : undefined };
     });
     return { id: `module-${index + 1}`, title, description, lessons };
   });
