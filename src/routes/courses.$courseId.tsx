@@ -89,6 +89,20 @@ function CoursePage() {
                 Start course <ArrowRight className="ml-2 h-3.5 w-3.5" />
               </Link>
             </Button>
+            {course.brihatlabs.units[0]?.lessons[0] ? (
+              <Button asChild size="sm" variant="outline" className="ml-2">
+                <Link
+                  to="/learn/$courseId/$unitId/$lessonId"
+                  params={{
+                    courseId: course.brihatlabs.slug,
+                    unitId: course.brihatlabs.units[0].id,
+                    lessonId: course.brihatlabs.units[0].lessons[0].id,
+                  }}
+                >
+                  Open first lesson
+                </Link>
+              </Button>
+            ) : null}
           </div>
         </section>
 

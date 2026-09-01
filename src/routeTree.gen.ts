@@ -35,6 +35,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedToolsCoverLetterRouteImport } from './routes/_authenticated/tools.cover-letter'
 import { Route as AuthenticatedAnalysisReportIdRouteImport } from './routes/_authenticated/analysis.$reportId'
+import { Route as LearnCourseIdUnitIdLessonIdRouteImport } from './routes/learn.$courseId.$unitId.$lessonId'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -167,6 +168,12 @@ const AuthenticatedAnalysisReportIdRoute =
     path: '/analysis/$reportId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const LearnCourseIdUnitIdLessonIdRoute =
+  LearnCourseIdUnitIdLessonIdRouteImport.update({
+    id: '/learn/$courseId/$unitId/$lessonId',
+    path: '/learn/$courseId/$unitId/$lessonId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
+  '/learn/$courseId/$unitId/$lessonId': typeof LearnCourseIdUnitIdLessonIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -221,6 +229,7 @@ export interface FileRoutesByTo {
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
+  '/learn/$courseId/$unitId/$lessonId': typeof LearnCourseIdUnitIdLessonIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -250,6 +259,7 @@ export interface FileRoutesById {
   '/courses/$courseId': typeof CoursesCourseIdRoute
   '/_authenticated/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/_authenticated/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
+  '/learn/$courseId/$unitId/$lessonId': typeof LearnCourseIdUnitIdLessonIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -279,6 +289,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/analysis/$reportId'
     | '/tools/cover-letter'
+    | '/learn/$courseId/$unitId/$lessonId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/analysis/$reportId'
     | '/tools/cover-letter'
+    | '/learn/$courseId/$unitId/$lessonId'
   id:
     | '__root__'
     | '/'
@@ -334,6 +346,7 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/_authenticated/analysis/$reportId'
     | '/_authenticated/tools/cover-letter'
+    | '/learn/$courseId/$unitId/$lessonId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -358,6 +371,7 @@ export interface RootRouteChildren {
   ApiHitavirCompletionRoute: typeof ApiHitavirCompletionRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CoursesCourseIdRoute: typeof CoursesCourseIdRoute
+  LearnCourseIdUnitIdLessonIdRoute: typeof LearnCourseIdUnitIdLessonIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -544,6 +558,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAnalysisReportIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/learn/$courseId/$unitId/$lessonId': {
+      id: '/learn/$courseId/$unitId/$lessonId'
+      path: '/learn/$courseId/$unitId/$lessonId'
+      fullPath: '/learn/$courseId/$unitId/$lessonId'
+      preLoaderRoute: typeof LearnCourseIdUnitIdLessonIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -589,6 +610,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHitavirCompletionRoute: ApiHitavirCompletionRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CoursesCourseIdRoute: CoursesCourseIdRoute,
+  LearnCourseIdUnitIdLessonIdRoute: LearnCourseIdUnitIdLessonIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
