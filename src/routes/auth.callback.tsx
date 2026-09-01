@@ -4,6 +4,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { consumeAuthDestination } from "@/lib/auth-navigation";
 import { Button } from "@/components/ui/button";
+import { BrandMark, BrandWordmark } from "@/components/shell/brand-mark";
 
 export const Route = createFileRoute("/auth/callback")({
   ssr: false,
@@ -51,12 +52,22 @@ function OAuthCallbackPage() {
 
   if (error) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-4">
-        <div className="glass-strong w-full max-w-md rounded-2xl p-8 text-center shadow-elevated">
-          <AlertCircle className="mx-auto h-10 w-10 text-destructive" />
-          <h1 className="mt-4 text-xl font-semibold">Sign-in could not be completed</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{error}</p>
-          <Button className="mt-6" onClick={() => navigate({ to: "/login", replace: true })}>
+      <main className="flex min-h-screen items-center justify-center px-5 py-12">
+        <div className="w-full max-w-[26rem] text-center">
+          <span
+            className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-destructive/10 text-destructive"
+            aria-hidden="true"
+          >
+            <AlertCircle className="h-5 w-5" />
+          </span>
+          <h1 className="mt-5 font-display text-h2 text-foreground">
+            Sign-in could not be completed
+          </h1>
+          <p className="mt-2 text-body text-muted-foreground">{error}</p>
+          <Button
+            className="mt-7 h-11 w-full text-body"
+            onClick={() => navigate({ to: "/login", replace: true })}
+          >
             Return to sign in
           </Button>
         </div>
@@ -65,14 +76,24 @@ function OAuthCallbackPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4" aria-live="polite">
-      <div className="text-center">
-        <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-        <h1 className="mt-4 text-lg font-semibold">Completing your sign-in</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Your dashboard will open automatically.
-        </p>
+    <main
+      className="flex min-h-screen flex-col items-center justify-center px-5 py-12"
+      aria-live="polite"
+    >
+      <div className="flex items-center gap-2.5">
+        <BrandMark />
+        <BrandWordmark />
       </div>
+      <span
+        className="mt-10 grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary"
+        aria-hidden="true"
+      >
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </span>
+      <h1 className="mt-5 font-display text-h3 text-foreground">Completing your sign-in</h1>
+      <p className="mt-1.5 text-small text-muted-foreground">
+        Your workspace will open automatically.
+      </p>
     </main>
   );
 }

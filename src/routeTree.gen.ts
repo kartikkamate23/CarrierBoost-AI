@@ -9,25 +9,106 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SkillpathRouteImport } from './routes/skillpath'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SampleReportRouteImport } from './routes/sample-report'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ProjectlabRouteImport } from './routes/projectlab'
+import { Route as ProgramsRouteImport } from './routes/programs'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MentorRouteImport } from './routes/mentor'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as JobmatchRouteImport } from './routes/jobmatch'
+import { Route as InterviewiqRouteImport } from './routes/interviewiq'
+import { Route as AnalyzeRouteImport } from './routes/analyze'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoursesCourseIdRouteImport } from './routes/courses.$courseId'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as ApiHitavirCompletionRouteImport } from './routes/api.hitavir-completion'
+import { Route as ApiHealthRouteImport } from './routes/api.health'
 import { Route as AuthenticatedUploadRouteImport } from './routes/_authenticated/upload'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedToolsCoverLetterRouteImport } from './routes/_authenticated/tools.cover-letter'
 import { Route as AuthenticatedAnalysisReportIdRouteImport } from './routes/_authenticated/analysis.$reportId'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SkillpathRoute = SkillpathRouteImport.update({
+  id: '/skillpath',
+  path: '/skillpath',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SampleReportRoute = SampleReportRouteImport.update({
+  id: '/sample-report',
+  path: '/sample-report',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectlabRoute = ProjectlabRouteImport.update({
+  id: '/projectlab',
+  path: '/projectlab',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgramsRoute = ProgramsRouteImport.update({
+  id: '/programs',
+  path: '/programs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentorRoute = MentorRouteImport.update({
+  id: '/mentor',
+  path: '/mentor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobmatchRoute = JobmatchRouteImport.update({
+  id: '/jobmatch',
+  path: '/jobmatch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InterviewiqRoute = InterviewiqRouteImport.update({
+  id: '/interviewiq',
+  path: '/interviewiq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalyzeRoute = AnalyzeRouteImport.update({
+  id: '/analyze',
+  path: '/analyze',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -39,9 +120,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
+  id: '/courses/$courseId',
+  path: '/courses/$courseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHitavirCompletionRoute = ApiHitavirCompletionRouteImport.update({
+  id: '/api/hitavir-completion',
+  path: '/api/hitavir-completion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedUploadRoute = AuthenticatedUploadRouteImport.update({
@@ -74,23 +170,55 @@ const AuthenticatedAnalysisReportIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analyze': typeof AnalyzeRoute
+  '/interviewiq': typeof InterviewiqRoute
+  '/jobmatch': typeof JobmatchRoute
   '/login': typeof LoginRoute
+  '/mentor': typeof MentorRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/programs': typeof ProgramsRoute
+  '/projectlab': typeof ProjectlabRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/roadmap': typeof RoadmapRoute
+  '/sample-report': typeof SampleReportRoute
   '/signup': typeof SignupRoute
+  '/skillpath': typeof SkillpathRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/upload': typeof AuthenticatedUploadRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/hitavir-completion': typeof ApiHitavirCompletionRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analyze': typeof AnalyzeRoute
+  '/interviewiq': typeof InterviewiqRoute
+  '/jobmatch': typeof JobmatchRoute
   '/login': typeof LoginRoute
+  '/mentor': typeof MentorRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/programs': typeof ProgramsRoute
+  '/projectlab': typeof ProjectlabRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/roadmap': typeof RoadmapRoute
+  '/sample-report': typeof SampleReportRoute
   '/signup': typeof SignupRoute
+  '/skillpath': typeof SkillpathRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/upload': typeof AuthenticatedUploadRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/hitavir-completion': typeof ApiHitavirCompletionRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
 }
@@ -98,12 +226,28 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/analyze': typeof AnalyzeRoute
+  '/interviewiq': typeof InterviewiqRoute
+  '/jobmatch': typeof JobmatchRoute
   '/login': typeof LoginRoute
+  '/mentor': typeof MentorRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/programs': typeof ProgramsRoute
+  '/projectlab': typeof ProjectlabRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/roadmap': typeof RoadmapRoute
+  '/sample-report': typeof SampleReportRoute
   '/signup': typeof SignupRoute
+  '/skillpath': typeof SkillpathRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/upload': typeof AuthenticatedUploadRoute
+  '/api/health': typeof ApiHealthRoute
+  '/api/hitavir-completion': typeof ApiHitavirCompletionRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/_authenticated/analysis/$reportId': typeof AuthenticatedAnalysisReportIdRoute
   '/_authenticated/tools/cover-letter': typeof AuthenticatedToolsCoverLetterRoute
 }
@@ -111,35 +255,83 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/analyze'
+    | '/interviewiq'
+    | '/jobmatch'
     | '/login'
+    | '/mentor'
+    | '/pricing'
+    | '/privacy'
+    | '/programs'
+    | '/projectlab'
+    | '/reset-password'
+    | '/roadmap'
+    | '/sample-report'
     | '/signup'
+    | '/skillpath'
+    | '/terms'
     | '/admin'
     | '/dashboard'
     | '/upload'
+    | '/api/health'
+    | '/api/hitavir-completion'
     | '/auth/callback'
+    | '/courses/$courseId'
     | '/analysis/$reportId'
     | '/tools/cover-letter'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/analyze'
+    | '/interviewiq'
+    | '/jobmatch'
     | '/login'
+    | '/mentor'
+    | '/pricing'
+    | '/privacy'
+    | '/programs'
+    | '/projectlab'
+    | '/reset-password'
+    | '/roadmap'
+    | '/sample-report'
     | '/signup'
+    | '/skillpath'
+    | '/terms'
     | '/admin'
     | '/dashboard'
     | '/upload'
+    | '/api/health'
+    | '/api/hitavir-completion'
     | '/auth/callback'
+    | '/courses/$courseId'
     | '/analysis/$reportId'
     | '/tools/cover-letter'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/analyze'
+    | '/interviewiq'
+    | '/jobmatch'
     | '/login'
+    | '/mentor'
+    | '/pricing'
+    | '/privacy'
+    | '/programs'
+    | '/projectlab'
+    | '/reset-password'
+    | '/roadmap'
+    | '/sample-report'
     | '/signup'
+    | '/skillpath'
+    | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/upload'
+    | '/api/health'
+    | '/api/hitavir-completion'
     | '/auth/callback'
+    | '/courses/$courseId'
     | '/_authenticated/analysis/$reportId'
     | '/_authenticated/tools/cover-letter'
   fileRoutesById: FileRoutesById
@@ -147,13 +339,43 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AnalyzeRoute: typeof AnalyzeRoute
+  InterviewiqRoute: typeof InterviewiqRoute
+  JobmatchRoute: typeof JobmatchRoute
   LoginRoute: typeof LoginRoute
+  MentorRoute: typeof MentorRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ProgramsRoute: typeof ProgramsRoute
+  ProjectlabRoute: typeof ProjectlabRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  RoadmapRoute: typeof RoadmapRoute
+  SampleReportRoute: typeof SampleReportRoute
   SignupRoute: typeof SignupRoute
+  SkillpathRoute: typeof SkillpathRoute
+  TermsRoute: typeof TermsRoute
+  ApiHealthRoute: typeof ApiHealthRoute
+  ApiHitavirCompletionRoute: typeof ApiHitavirCompletionRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/skillpath': {
+      id: '/skillpath'
+      path: '/skillpath'
+      fullPath: '/skillpath'
+      preLoaderRoute: typeof SkillpathRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -161,11 +383,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sample-report': {
+      id: '/sample-report'
+      path: '/sample-report'
+      fullPath: '/sample-report'
+      preLoaderRoute: typeof SampleReportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projectlab': {
+      id: '/projectlab'
+      path: '/projectlab'
+      fullPath: '/projectlab'
+      preLoaderRoute: typeof ProjectlabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/programs': {
+      id: '/programs'
+      path: '/programs'
+      fullPath: '/programs'
+      preLoaderRoute: typeof ProgramsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentor': {
+      id: '/mentor'
+      path: '/mentor'
+      fullPath: '/mentor'
+      preLoaderRoute: typeof MentorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jobmatch': {
+      id: '/jobmatch'
+      path: '/jobmatch'
+      fullPath: '/jobmatch'
+      preLoaderRoute: typeof JobmatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interviewiq': {
+      id: '/interviewiq'
+      path: '/interviewiq'
+      fullPath: '/interviewiq'
+      preLoaderRoute: typeof InterviewiqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analyze': {
+      id: '/analyze'
+      path: '/analyze'
+      fullPath: '/analyze'
+      preLoaderRoute: typeof AnalyzeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -182,11 +481,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/courses/$courseId': {
+      id: '/courses/$courseId'
+      path: '/courses/$courseId'
+      fullPath: '/courses/$courseId'
+      preLoaderRoute: typeof CoursesCourseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/hitavir-completion': {
+      id: '/api/hitavir-completion'
+      path: '/api/hitavir-completion'
+      fullPath: '/api/hitavir-completion'
+      preLoaderRoute: typeof ApiHitavirCompletionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/upload': {
@@ -250,9 +570,25 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AnalyzeRoute: AnalyzeRoute,
+  InterviewiqRoute: InterviewiqRoute,
+  JobmatchRoute: JobmatchRoute,
   LoginRoute: LoginRoute,
+  MentorRoute: MentorRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  ProgramsRoute: ProgramsRoute,
+  ProjectlabRoute: ProjectlabRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  RoadmapRoute: RoadmapRoute,
+  SampleReportRoute: SampleReportRoute,
   SignupRoute: SignupRoute,
+  SkillpathRoute: SkillpathRoute,
+  TermsRoute: TermsRoute,
+  ApiHealthRoute: ApiHealthRoute,
+  ApiHitavirCompletionRoute: ApiHitavirCompletionRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  CoursesCourseIdRoute: CoursesCourseIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

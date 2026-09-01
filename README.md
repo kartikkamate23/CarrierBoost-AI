@@ -5,6 +5,13 @@ missing keywords, grammar/formatting feedback, a career roadmap, skill-gap
 analysis, interview questions, recommended courses/videos, a downloadable PDF
 report, and an AI cover-letter generator.
 
+CareerBoost AI now connects the ResumeIQ analyzer to a personalized Career
+Roadmap, the SkillPath Data Engineering program, an educational AI Mentor,
+ProjectLab, InterviewIQ, and JobMatch. Guest users can analyze PDF or DOCX
+resumes (or pasted text) locally without creating an account. See
+`docs/AUDIT.md`, `docs/ARCHITECTURE.md`, and `docs/DEPLOYMENT.md` for the
+productionization details and current infrastructure boundaries.
+
 ## Tech stack
 
 | Layer     | Technology                                                                    |
@@ -15,7 +22,7 @@ report, and an AI cover-letter generator.
 | Styling   | Tailwind CSS v4 + shadcn/ui + Framer Motion                                   |
 | Backend   | TanStack **server functions** (`createServerFn`) — no separate Express server |
 | Database  | Supabase Postgres (RLS enforced)                                              |
-| Auth      | Supabase Auth — passwordless Email OTP + Google OAuth                         |
+| Auth      | Supabase Auth — email/password + Google OAuth                                 |
 | AI        | Lovable AI Gateway (OpenAI-compatible, `google/gemini-2.5-flash`)             |
 | PDF       | `pdfjs-dist` (client-side text extraction), `jspdf` (report export)           |
 | Deploy    | Nitro (auto-targets Vercel / Cloudflare)                                      |
@@ -60,6 +67,7 @@ npm install
 cp .env.example .env      # fill in your values
 npm run dev               # http://localhost:8080
 npm run build             # production build
+npm test                  # deterministic scoring and security tests
 npm run preview           # preview the production build
 ```
 
@@ -79,6 +87,8 @@ Add all of these in **Vercel → Project → Settings → Environment Variables*
 | `SUPABASE_PUBLISHABLE_KEY`      | yes                     | no                 | Same anon key, used by SSR/server functions                               |
 | `SUPABASE_SERVICE_ROLE_KEY`     | only for admin features | no                 | Service-role key used by the admin client. **Never** prefix with `VITE_`. |
 | `LOVABLE_API_KEY`               | yes for AI features     | no                 | AI gateway key for resume analysis + cover letters                        |
+| `OPENAI_API_KEY`                | optional                | no                 | Preferred provider key for the AI Mentor                                  |
+| `OPENAI_MENTOR_MODEL`           | optional                | no                 | Mentor model override (defaults to `gpt-5-mini`)                          |
 
 Without `LOVABLE_API_KEY` the app still builds and runs, but analysis and
 cover-letter generation return "AI service is not configured".
@@ -139,12 +149,21 @@ The app expects these tables in the `public` schema with RLS enabled
 
 Auth configuration:
 
-- Enable **Email** provider (OTP / magic link) — no password needed.
-- Enable the **Google** provider.
+- Enable the **Email** provider and password sign-ins. Keep email confirmation
+  enabled in production, and configure custom SMTP before serving real users.
+- For Google, create a Web OAuth client in Google Cloud. Add the app origin
+  (for example `http://127.0.0.1:8080`) as an authorized JavaScript origin and
+  add `https://<project-ref>.supabase.co/auth/v1/callback` as its authorized
+  redirect URI. Paste both the client ID and client secret into **Supabase →
+  Authentication → Providers → Google**. Enabling the toggle without a secret
+  is not sufficient.
 - Set **Site URL** to the primary production origin, for example
   `https://your-app.vercel.app` (no path).
 - Add these exact callback patterns to **Allowed Redirect URLs**:
   - `http://localhost:8080/auth/callback` for local development.
+  - `http://127.0.0.1:8080/auth/callback` for local development by IP.
+  - `http://localhost:8080/reset-password` and
+    `http://127.0.0.1:8080/reset-password` for password recovery.
   - `https://your-app.vercel.app/auth/callback` for Vercel production.
   - `https://your-preview-domain/auth/callback` for each preview domain you use.
   - `https://your-custom-domain/auth/callback` when a custom domain is connected.

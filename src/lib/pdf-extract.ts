@@ -7,16 +7,35 @@ import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 export async function extractPdfText(file: File): Promise<string> {
-  const buf = await file.arrayBuffer();
-  const pdf = await pdfjs.getDocument({ data: buf }).promise;
-  const parts: string[] = [];
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    const text = content.items
-      .map((item) => ("str" in item ? (item as { str: string }).str : ""))
-      .join(" ");
-    parts.push(text);
+  let document: pdfjs.PDFDocumentProxy | null = null;
+  try {
+    const data = new Uint8Array(await file.arrayBuffer());
+    const task = pdfjs.getDocument({
+      data,
+      useSystemFonts: true,
+    });
+    document = await task.promise;
+    const parts: string[] = [];
+    for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
+      const page = await document.getPage(pageNumber);
+      const content = await page.getTextContent();
+      const text = content.items.map((item) => ("str" in item ? item.str : "")).join(" ");
+      parts.push(text);
+      page.cleanup();
+    }
+    return parts.join("\n\n").replace(/\s+/g, " ").trim();
+  } catch (error) {
+    const detail = error instanceof Error ? error.message.toLowerCase() : "";
+    if (detail.includes("password")) {
+      throw new Error("This PDF is password-protected. Remove the password and try again.");
+    }
+    if (detail.includes("invalid") || detail.includes("corrupt")) {
+      throw new Error("This PDF appears damaged or invalid. Export a fresh PDF and try again.");
+    }
+    throw new Error(
+      "This PDF could not be read in the browser. Export it as a selectable-text PDF or paste the resume text below.",
+    );
+  } finally {
+    await document?.destroy();
   }
-  return parts.join("\n\n").replace(/\s+/g, " ").trim();
 }

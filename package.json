@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "test": "node --experimental-strip-types --test src/lib/*.test.ts",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
@@ -57,6 +58,7 @@
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "lucide-react": "^0.575.0",
+    "mammoth": "^1.8.0",
     "nitro": "3.0.260603-beta",
     "pdfjs-dist": "^5.7.284",
     "react": "^19.2.0",

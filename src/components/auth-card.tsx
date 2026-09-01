@@ -1,20 +1,22 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, type FormEvent } from "react";
+import { motion } from "framer-motion";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, Mail, ArrowLeft, KeyRound } from "lucide-react";
+import { Eye, EyeOff, Loader2, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { checkGoogleAuth } from "@/lib/auth.functions";
 import { getSafeAuthDestination, rememberAuthDestination } from "@/lib/auth-navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const emailSchema = z.string().trim().email("Enter a valid email").max(255);
-const otpSchema = z
+const emailSchema = z.string().trim().email("Enter a valid email address").max(255);
+const passwordSchema = z
   .string()
-  .trim()
-  .regex(/^\d{6}$/, "Enter the 6-digit code");
+  .min(8, "Password must contain at least 8 characters")
+  .max(72, "Password must contain no more than 72 characters");
 
 type Mode = "signin" | "signup";
 
@@ -27,286 +29,327 @@ function isLovableHostedOrigin(hostname: string) {
   );
 }
 
+function friendlyError(message: string) {
+  if (/rate limit|security purposes/i.test(message)) {
+    return "Email signup is blocked because Supabase confirmation emails are still enabled and the delivery limit was reached.";
+  }
+  if (/invalid login credentials/i.test(message)) {
+    return "Incorrect email or password. Check your details or reset your password.";
+  }
+  if (/email not confirmed/i.test(message)) {
+    return "Direct sign-in is not enabled in the Supabase email provider settings.";
+  }
+  if (/user already registered/i.test(message)) {
+    return "An account already exists for this email. Sign in or reset your password.";
+  }
+  return message;
+}
 
 export function AuthCard({ mode }: { mode: Mode }) {
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { redirect?: string };
   const redirectTo = getSafeAuthDestination(search?.redirect);
-
-  const [step, setStep] = useState<"email" | "otp">("email");
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [resending, setResending] = useState(false);
-
+  const preflightGoogle = useServerFn(checkGoogleAuth);
   const isSignup = mode === "signup";
 
-  const sendOtp = async (e?: FormEvent) => {
-    e?.preventDefault();
-    const parsed = emailSchema.safeParse(email);
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0].message);
-      return;
-    }
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    const parsedEmail = emailSchema.safeParse(email);
+    const parsedPassword = passwordSchema.safeParse(password);
+    if (!parsedEmail.success) return toast.error(parsedEmail.error.issues[0].message);
+    if (!parsedPassword.success) return toast.error(parsedPassword.error.issues[0].message);
+    if (isSignup && fullName.trim().length < 2) return toast.error("Enter your full name");
+    if (isSignup && password !== confirmPassword) return toast.error("Passwords do not match");
+
     rememberAuthDestination(redirectTo);
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email: parsed.data,
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+    if (isSignup) {
+      const { data, error } = await supabase.auth.signUp({
+        email: parsedEmail.data,
+        password: parsedPassword.data,
+        options: {
+          data: { full_name: fullName.trim() },
+        },
+      });
+      setLoading(false);
+      if (error) return toast.error(friendlyError(error.message));
+      if (data.session) {
+        toast.success("Account created successfully");
+        return navigate({ to: redirectTo, replace: true });
+      }
+      return toast.error("Direct sign-in is not enabled in the Supabase email provider settings.");
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: parsedEmail.data,
+      password: parsedPassword.data,
     });
     setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Check your email for the 6-digit code");
-    setStep("otp");
+    if (error) return toast.error(friendlyError(error.message));
+    toast.success("Welcome back!");
+    navigate({ to: redirectTo, replace: true });
   };
 
-  const verifyOtp = async (e: FormEvent) => {
-    e.preventDefault();
-    const parsed = otpSchema.safeParse(otp);
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0].message);
-      return;
-    }
-    setLoading(true);
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token: parsed.data,
-      type: "email",
+  const sendPasswordReset = async () => {
+    const parsed = emailSchema.safeParse(email);
+    if (!parsed.success) return toast.error("Enter your email first");
+    setResetLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
+      redirectTo: `${window.location.origin}/reset-password`,
     });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success(isSignup ? "Welcome to ResumeIQ!" : "Welcome back!");
-    navigate({ to: redirectTo });
-  };
-
-  const resend = async () => {
-    setResending(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true },
-    });
-    setResending(false);
-    if (error) toast.error(error.message);
-    else toast.success("New code sent");
+    setResetLoading(false);
+    if (error) return toast.error(friendlyError(error.message));
+    toast.success("If an account exists, a password-reset email has been sent.");
   };
 
   const signInWithGoogle = async () => {
     setGoogleLoading(true);
     rememberAuthDestination(redirectTo);
-    const callbackUrl = `${window.location.origin}/auth/callback`;
-
     try {
-      // The managed broker exposes /~oauth/* only on Lovable-hosted domains.
-      // Vercel, custom domains, and standalone localhost must use the backend
-      // provider directly so they never navigate to a missing /~oauth route.
       if (!isLovableHostedOrigin(window.location.hostname)) {
+        const readiness = await preflightGoogle({ data: { origin: window.location.origin } });
+        if (!readiness.available) {
+          toast.error(readiness.message);
+          return;
+        }
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
-          options: { redirectTo: callbackUrl, queryParams: { prompt: "select_account" } },
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+            queryParams: { prompt: "select_account" },
+          },
         });
-        if (error) {
-          setGoogleLoading(false);
-          toast.error(
-            error.message.includes("provider")
-              ? "Google sign-in isn't configured for this domain yet. Add your Google OAuth client in the backend auth settings, or use the email code below."
-              : error.message,
-          );
-        }
+        if (error) toast.error(friendlyError(error.message));
         return;
       }
 
-      // Keep the broker out of standalone deployments' startup path. This
-      // module is loaded only after confirming the app is hosted by Lovable.
       const { lovable } = await import("@/integrations/lovable");
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: callbackUrl,
+        redirect_uri: `${window.location.origin}/auth/callback`,
         extraParams: { prompt: "select_account" },
       });
-      if (result.error) {
-        setGoogleLoading(false);
-        toast.error(result.error.message ?? "Google sign-in failed");
-        return;
-      }
-      if (result.redirected) return;
-
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        setGoogleLoading(false);
-        toast.error(error?.message ?? "Google sign-in did not create a valid session");
-        return;
-      }
-      navigate({ to: redirectTo, replace: true });
+      if (result.error) toast.error(result.error.message ?? "Google sign-in failed");
     } catch (error) {
+      toast.error(error instanceof Error ? friendlyError(error.message) : "Google sign-in failed");
+    } finally {
       setGoogleLoading(false);
-      toast.error(error instanceof Error ? error.message : "Google sign-in failed");
     }
   };
-
-
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      className="glass-strong w-full max-w-md rounded-2xl p-8 shadow-elevated"
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full max-w-[26rem]"
     >
-      <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight">
+      <div>
+        <h1 className="font-display text-h2 text-foreground">
           {isSignup ? "Create your account" : "Welcome back"}
         </h1>
-        <p className="mt-1.5 text-sm text-muted-foreground">
+        <p className="mt-2 text-body text-muted-foreground">
           {isSignup
-            ? "Sign up in seconds — no password required."
-            : "Sign in with a one-time code or Google."}
+            ? "Save your reports, track progress and generate cover letters."
+            : "Sign in to continue your career workspace."}
         </p>
       </div>
 
-      <div className="mt-8">
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full h-11"
-          onClick={signInWithGoogle}
-          disabled={googleLoading || loading}
-        >
-          {googleLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <GoogleIcon className="mr-2 h-4 w-4" />
-          )}
-          Continue with Google
-        </Button>
+      <Button
+        type="button"
+        variant="outline"
+        className="mt-8 h-11 w-full text-body font-medium"
+        onClick={signInWithGoogle}
+        disabled={googleLoading || loading}
+      >
+        {googleLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <GoogleIcon className="mr-2 h-4 w-4" />
+        )}
+        Continue with Google
+      </Button>
 
-        <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">or</span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-
-        <AnimatePresence mode="wait">
-          {step === "email" ? (
-            <motion.form
-              key="email"
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 8 }}
-              transition={{ duration: 0.2 }}
-              onSubmit={sendOtp}
-              className="space-y-4"
-            >
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-9 h-11"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              </div>
-              <Button type="submit" className="w-full h-11 btn-glow" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Send login code
-              </Button>
-            </motion.form>
-          ) : (
-            <motion.form
-              key="otp"
-              initial={{ opacity: 0, x: 8 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -8 }}
-              transition={{ duration: 0.2 }}
-              onSubmit={verifyOtp}
-              className="space-y-4"
-            >
-              <div className="space-y-1.5">
-                <Label htmlFor="otp">6-digit code</Label>
-                <div className="relative">
-                  <KeyRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="otp"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    required
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                    className="pl-9 h-11 tracking-[0.4em] font-mono text-center"
-                    placeholder="••••••"
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground pt-1">
-                  Sent to <span className="font-medium text-foreground">{email}</span>
-                </p>
-              </div>
-              <Button
-                type="submit"
-                className="w-full h-11 btn-glow"
-                disabled={loading || otp.length !== 6}
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Verify & continue
-              </Button>
-              <div className="flex items-center justify-between text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep("email");
-                    setOtp("");
-                  }}
-                  className="inline-flex items-center text-muted-foreground hover:text-foreground"
-                >
-                  <ArrowLeft className="mr-1 h-3 w-3" /> Change email
-                </button>
-                <button
-                  type="button"
-                  onClick={resend}
-                  disabled={resending}
-                  className="text-primary hover:underline disabled:opacity-60"
-                >
-                  {resending ? "Sending…" : "Resend code"}
-                </button>
-              </div>
-            </motion.form>
-          )}
-        </AnimatePresence>
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-caption uppercase text-muted-foreground">or use email</span>
+        <div className="h-px flex-1 bg-border" />
       </div>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        {isSignup ? (
-          <>
-            Already have an account?{" "}
-            <Link to="/login" className="font-medium text-primary hover:underline">
-              Sign in
-            </Link>
-          </>
-        ) : (
-          <>
-            New here?{" "}
-            <Link to="/signup" className="font-medium text-primary hover:underline">
-              Create an account
-            </Link>
-          </>
+      <form onSubmit={submit} className="space-y-4">
+        {isSignup && (
+          <Field label="Full name" id="full-name" icon={<UserRound className="h-4 w-4" />}>
+            <Input
+              id="full-name"
+              autoComplete="name"
+              value={fullName}
+              onChange={(event) => setFullName(event.target.value)}
+              className="h-11 pl-10"
+              required
+            />
+          </Field>
         )}
+        <Field label="Email" id="email" icon={<Mail className="h-4 w-4" />}>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            className="h-11 pl-10"
+            placeholder="you@example.com"
+            required
+          />
+        </Field>
+        <Field
+          label="Password"
+          id="password"
+          icon={<LockKeyhole className="h-4 w-4" />}
+          action={
+            !isSignup ? (
+              <button
+                type="button"
+                onClick={sendPasswordReset}
+                disabled={resetLoading}
+                className="rounded-md text-small font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+              >
+                {resetLoading ? "Sending reset email…" : "Forgot password?"}
+              </button>
+            ) : null
+          }
+        >
+          <Input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete={isSignup ? "new-password" : "current-password"}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            className="h-11 px-10"
+            minLength={8}
+            maxLength={72}
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((shown) => !shown)}
+            className="absolute right-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-md text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-pressed={showPassword}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Eye className="h-4 w-4" aria-hidden="true" />
+            )}
+          </button>
+        </Field>
+        {isSignup && (
+          <Field
+            label="Confirm password"
+            id="confirm-password"
+            icon={<LockKeyhole className="h-4 w-4" />}
+          >
+            <Input
+              id="confirm-password"
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              className="h-11 pl-10"
+              minLength={8}
+              maxLength={72}
+              required
+            />
+          </Field>
+        )}
+        <Button
+          type="submit"
+          className="btn-glow mt-2 h-11 w-full text-body"
+          disabled={loading || googleLoading}
+        >
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
+          {isSignup ? "Create account" : "Sign in"}
+        </Button>
+        <p className="sr-only" role="status" aria-live="polite">
+          {loading
+            ? isSignup
+              ? "Creating your account."
+              : "Signing you in."
+            : googleLoading
+              ? "Opening Google sign-in."
+              : ""}
+        </p>
+      </form>
+
+      {isSignup ? (
+        <p className="mt-5 text-small leading-6 text-muted-foreground">
+          By creating an account you agree to our{" "}
+          <Link
+            to="/terms"
+            className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+          >
+            terms
+          </Link>{" "}
+          and{" "}
+          <Link
+            to="/privacy"
+            className="font-medium text-foreground underline underline-offset-4 hover:text-primary"
+          >
+            privacy notice
+          </Link>
+          .
+        </p>
+      ) : null}
+
+      <p className="mt-8 border-t pt-6 text-center text-small text-muted-foreground">
+        {isSignup ? "Already have an account? " : "New here? "}
+        <Link
+          to={isSignup ? "/login" : "/signup"}
+          className="rounded-md font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {isSignup ? "Sign in" : "Create an account"}
+        </Link>
       </p>
     </motion.div>
+  );
+}
+
+function Field({
+  label,
+  id,
+  icon,
+  action,
+  children,
+}: {
+  label: string;
+  id: string;
+  icon: ReactNode;
+  action?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <Label htmlFor={id} className="text-small font-medium">
+          {label}
+        </Label>
+        {action}
+      </div>
+      <div className="relative">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+          {icon}
+        </span>
+        {children}
+      </div>
+    </div>
   );
 }
 

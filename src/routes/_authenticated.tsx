@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { Navbar } from "@/components/navbar";
+import { AppShell } from "@/components/shell/app-shell";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -30,20 +30,20 @@ function AuthLayout() {
   if (loading || !user) {
     return (
       <main className="flex min-h-screen items-center justify-center px-4" aria-live="polite">
-        <div className="text-center">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
-          <p className="mt-3 text-sm text-muted-foreground">Checking your session…</p>
+        <div className="flex flex-col items-center text-center">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+          </span>
+          <p className="mt-4 text-body font-medium text-foreground">Checking your session…</p>
+          <p className="mt-1 text-small text-muted-foreground">This only takes a moment.</p>
         </div>
       </main>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <Outlet />
-      </main>
-    </div>
+    <AppShell>
+      <Outlet />
+    </AppShell>
   );
 }

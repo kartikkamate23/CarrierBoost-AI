@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Navbar } from "@/components/navbar";
+import { AuthLayout } from "@/components/shell/auth-layout";
 import { AuthCard } from "@/components/auth-card";
 import { useAuth } from "@/hooks/use-auth";
 import { getSafeAuthDestination } from "@/lib/auth-navigation";
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/login")({
   }),
 
   component: LoginPage,
-  head: () => ({ meta: [{ title: "Sign in — ResumeIQ" }] }),
+  head: () => ({ meta: [{ title: "Sign in | CareerBoost AI" }] }),
 });
 
 function LoginPage() {
@@ -26,11 +26,8 @@ function LoginPage() {
   }, [user, target, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <main className="flex-1 flex items-center justify-center px-4 py-12">
-        <AuthCard mode="signin" />
-      </main>
-    </div>
+    <AuthLayout>
+      <AuthCard mode="signin" />
+    </AuthLayout>
   );
 }
