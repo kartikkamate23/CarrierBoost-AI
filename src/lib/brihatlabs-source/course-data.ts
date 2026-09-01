@@ -323,8 +323,12 @@ function quizQuestions(moduleTitle: string, subject: Course["subject"]): QuizQue
   ];
   const banks = { analytics: analyticsQuestions, science: scienceQuestions, ml: mlQuestions, agents: agentQuestions };
   const shared = banks[subject as keyof typeof banks] ?? mlQuestions;
-  const contextual: [string, string[], number, string] = [`What is the best way to learn ${moduleTitle}?`, ["Use small examples, inspect results, then practice", "Memorize labels only", "Skip every exercise", "Avoid feedback"], 0, "Progress comes from combining intuition, visible examples, practice, and feedback."];
-  return [contextual, ...shared].map(([prompt, options, answer, explanation], index) => ({ id: `q${index + 1}`, prompt, options, answer, explanation }));
+  // Rotate the subject bank from the module title so every module receives a
+  // stable but different assessment instead of the same quiz repeated.
+  const moduleSeed = Array.from(moduleTitle).reduce((sum, character) => sum + character.charCodeAt(0), 0);
+  const rotated = shared.map((_, index) => shared[(index + moduleSeed) % shared.length]);
+  const contextual: [string, string[], number, string] = [`What is the best way to learn ${moduleTitle}?`, ["Use small examples, inspect results, then practice", "Memorize labels only", "Skip every exercise", "Avoid feedback"], 0, `Progress through ${moduleTitle} comes from combining intuition, visible examples, practice, and feedback.`];
+  return [contextual, ...rotated].map(([prompt, options, answer, explanation], index) => ({ id: `${slugify(moduleTitle)}-q${index + 1}`, prompt, options, answer, explanation, }));
 }
 
 function makeUnit(index: number, title: string, lessonTitles: string[], description: string, subject: Course["subject"]): Unit {

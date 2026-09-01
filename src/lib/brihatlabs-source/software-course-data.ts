@@ -159,8 +159,10 @@ const testingQuestions: typeof fullStackQuestions = [
 
 function quizQuestions(moduleTitle: string, subject: SoftwareSubject): QuizQuestion[] {
   const bank = subject === "testing" ? testingQuestions : subject === "mern" ? mernQuestions : fullStackQuestions;
-  const contextual: [string, string[], number, string] = [`What is the strongest way to learn ${moduleTitle}?`, ["Build a small example, inspect evidence, and explain trade-offs", "Memorize names only", "Skip failure cases", "Avoid feedback"], 0, "A small observable example plus deliberate practice builds transferable understanding."];
-  return [contextual, ...bank].map(([prompt, options, answer, explanation], index) => ({ id: `q${index + 1}`, prompt, options, answer, explanation }));
+  const moduleSeed = Array.from(moduleTitle).reduce((sum, character) => sum + character.charCodeAt(0), 0);
+  const rotated = bank.map((_, index) => bank[(index + moduleSeed) % bank.length]);
+  const contextual: [string, string[], number, string] = [`What is the strongest way to learn ${moduleTitle}?`, ["Build a small example, inspect evidence, and explain trade-offs", "Memorize names only", "Skip failure cases", "Avoid feedback"], 0, `A small observable ${moduleTitle} example plus deliberate practice builds transferable understanding.`];
+  return [contextual, ...rotated].map(([prompt, options, answer, explanation], index) => ({ id: `${slugify(moduleTitle)}-q${index + 1}`, prompt, options, answer, explanation }));
 }
 
 function makeUnits(definitions: ModuleDefinition[], subject: SoftwareSubject): Unit[] {
