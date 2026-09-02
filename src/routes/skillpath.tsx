@@ -15,7 +15,9 @@ export const Route = createFileRoute("/skillpath")({
 
 function SkillPath() {
   const [targetRole, setTargetRole] = useState("Data Engineer");
-  const courses = useMemo(() => getCoursesForTargetRole(targetRole, 6), [targetRole]);
+  // SkillPath is intentionally focused: show the best BrihatLabs course for
+  // the selected role instead of exposing the entire catalog at once.
+  const courses = useMemo(() => getCoursesForTargetRole(targetRole, 1), [targetRole]);
   useEffect(() => {
     setTargetRole(loadTargetRole());
   }, []);
@@ -104,7 +106,7 @@ function SkillPath() {
               Continue with the first course in your role roadmap and review its full curriculum.
             </p>
             {nextCourse ? (
-              <Button asChild className="mt-4 w-full">
+              <Button asChild className="mt-4 h-auto min-w-0 w-full whitespace-normal px-3 py-2 text-center leading-5">
                 <Link
                   to="/learn/$courseId/$unitId/$lessonId"
                   params={{
