@@ -1,1 +1,58 @@
 project_id = "yutzixmjzvfvhpyszbpu"
+
+# ---------------------------------------------------------------------------
+# Auth configuration.
+#
+# IMPORTANT: this file configures the LOCAL Supabase stack (`supabase start`).
+# The hosted project (yutzixmjzvfvhpyszbpu) reads its settings from the
+# Supabase dashboard, NOT from this file. The values here are the source of
+# truth for what the dashboard should be set to — see
+# docs/AUTH-EMAIL-LIMITS.md for the click-path.
+# ---------------------------------------------------------------------------
+[auth]
+enabled = true
+site_url = "http://localhost:8080"
+additional_redirect_urls = ["http://localhost:8080/auth/callback"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+# THE FIX: with confirmations off, signUp() returns a session immediately and
+# sends no email, so signup can no longer be blocked by the mail delivery
+# limit. Turn this back on only once custom SMTP (below) is configured.
+enable_confirmations = false
+secure_password_change = false
+double_confirm_changes = true
+max_frequency = "1s"
+
+# Custom SMTP. The built-in Supabase mailer is capped at a handful of messages
+# per hour regardless of the rate limits below, and Supabase documents it as
+# not for production use. Configure this (Resend / SendGrid / Postmark / SES)
+# before raising `email_sent` — otherwise the 10000 below has no real effect.
+# [auth.email.smtp]
+# enabled = true
+# host = "smtp.resend.com"
+# port = 587
+# user = "resend"
+# pass = "env(SMTP_PASSWORD)"
+# admin_email = "no-reply@yourdomain.com"
+# sender_name = "CareerBoost AI"
+
+# ---------------------------------------------------------------------------
+# Rate limits, raised to 10000.
+#
+# `email_sent` is per hour, per project, and needs custom SMTP to exceed the
+# built-in mailer's cap. The others are per 5 minutes, per IP.
+# ---------------------------------------------------------------------------
+[auth.rate_limit]
+email_sent = 10000
+sms_sent = 10000
+anonymous_users = 10000
+token_refresh = 10000
+sign_in_sign_ups = 10000
+token_verifications = 10000
+web_hook = 10000

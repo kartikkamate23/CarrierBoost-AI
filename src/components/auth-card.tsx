@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { Eye, EyeOff, Loader2, LockKeyhole, Mail, MailCheck, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { checkGoogleAuth } from "@/lib/auth.functions";
 import { getSafeAuthDestination, rememberAuthDestination } from "@/lib/auth-navigation";
@@ -29,18 +29,58 @@ function isLovableHostedOrigin(hostname: string) {
   );
 }
 
-function friendlyError(message: string) {
-  if (/rate limit|security purposes/i.test(message)) {
-    return "Email signup is blocked because Supabase confirmation emails are still enabled and the delivery limit was reached.";
+type AuthErrorLike = { message: string; code?: string; status?: number };
+
+/** Supabase reports its per-email cooldown as "…after 47 seconds". */
+function parseRetryAfter(message: string): number | null {
+  const match = /after (\d+)\s*seconds?/i.exec(message);
+  return match ? Number(match[1]) : null;
+}
+
+/**
+ * Maps a Supabase auth error to a message that is actionable for the person
+ * using the app. The operator-facing cause (e.g. "confirmations are still on")
+ * goes to the console instead, so end users never see project configuration
+ * instructions they cannot act on.
+ */
+function friendlyError(error: AuthErrorLike, mode: Mode): string {
+  const message = error.message ?? "";
+  const code = error.code ?? "";
+
+  const retryAfter = parseRetryAfter(message);
+  if (retryAfter !== null) {
+    return `Too many attempts. Please wait ${retryAfter} second${retryAfter === 1 ? "" : "s"} and try again.`;
   }
+
+  if (code === "over_email_send_rate_limit" || /email rate limit exceeded/i.test(message)) {
+    console.error(
+      "[auth] Supabase email delivery limit reached. Turn off Authentication → " +
+        "Providers → Email → “Confirm email”, or configure custom SMTP to raise the cap. " +
+        "See docs/AUTH-EMAIL-LIMITS.md.",
+    );
+    return mode === "signup"
+      ? "We could not send your confirmation email right now. Please try again in a little while."
+      : "We could not send that email right now. Please try again in a little while.";
+  }
+
+  if (code === "over_request_rate_limit" || error.status === 429) {
+    return "Too many attempts from this device. Please wait a moment and try again.";
+  }
+
   if (/invalid login credentials/i.test(message)) {
     return "Incorrect email or password. Check your details or reset your password.";
   }
   if (/email not confirmed/i.test(message)) {
-    return "Direct sign-in is not enabled in the Supabase email provider settings.";
+    return "Please confirm your email address first — check your inbox for the link.";
   }
   if (/user already registered/i.test(message)) {
     return "An account already exists for this email. Sign in or reset your password.";
+  }
+  if (/weak.?password|password.*(short|least)/i.test(message)) {
+    return "Choose a stronger password with at least 8 characters.";
+  }
+  if (/signups? not allowed|signup is disabled/i.test(message)) {
+    return "New sign-ups are currently disabled. Please contact support.";
   }
   return message;
 }
@@ -60,6 +100,24 @@ export function AuthCard({ mode }: { mode: Mode }) {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  // Set when signup succeeded but Supabase is still requiring email
+  // confirmation. This is a normal outcome, not an error.
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState<string | null>(null);
+  // Seconds left on Supabase's per-email send cooldown; blocks resubmission
+  // instead of letting the user burn through the delivery quota.
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown((seconds) => seconds - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const reportError = (error: AuthErrorLike) => {
+    const retryAfter = parseRetryAfter(error.message ?? "");
+    if (retryAfter !== null) setCooldown(retryAfter);
+    toast.error(friendlyError(error, mode));
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -70,6 +128,10 @@ export function AuthCard({ mode }: { mode: Mode }) {
     if (isSignup && fullName.trim().length < 2) return toast.error("Enter your full name");
     if (isSignup && password !== confirmPassword) return toast.error("Passwords do not match");
 
+    if (cooldown > 0) {
+      return toast.error(`Please wait ${cooldown}s before trying again.`);
+    }
+
     rememberAuthDestination(redirectTo);
     setLoading(true);
     if (isSignup) {
@@ -78,15 +140,28 @@ export function AuthCard({ mode }: { mode: Mode }) {
         password: parsedPassword.data,
         options: {
           data: { full_name: fullName.trim() },
+          // Send confirmation links back into the app rather than the
+          // project's default Site URL, so the callback route completes them.
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
       setLoading(false);
-      if (error) return toast.error(friendlyError(error.message));
+      if (error) return reportError(error);
+
+      // Supabase hides whether an email is already registered by returning a
+      // user with no linked identities. Treat that as "already exists".
+      if (data.user && data.user.identities?.length === 0) {
+        return toast.error("An account already exists for this email. Sign in instead.");
+      }
+
       if (data.session) {
         toast.success("Account created successfully");
         return navigate({ to: redirectTo, replace: true });
       }
-      return toast.error("Direct sign-in is not enabled in the Supabase email provider settings.");
+
+      // No session means the project still requires email confirmation. The
+      // account was created, so guide the user instead of failing.
+      return setAwaitingConfirmation(parsedEmail.data);
     }
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -94,9 +169,23 @@ export function AuthCard({ mode }: { mode: Mode }) {
       password: parsedPassword.data,
     });
     setLoading(false);
-    if (error) return toast.error(friendlyError(error.message));
+    if (error) return reportError(error);
     toast.success("Welcome back!");
     navigate({ to: redirectTo, replace: true });
+  };
+
+  const resendConfirmation = async () => {
+    if (!awaitingConfirmation || cooldown > 0) return;
+    setLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: awaitingConfirmation,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+    setLoading(false);
+    if (error) return reportError(error);
+    setCooldown(60);
+    toast.success("Confirmation email sent again.");
   };
 
   const sendPasswordReset = async () => {
@@ -107,7 +196,7 @@ export function AuthCard({ mode }: { mode: Mode }) {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setResetLoading(false);
-    if (error) return toast.error(friendlyError(error.message));
+    if (error) return reportError(error);
     toast.success("If an account exists, a password-reset email has been sent.");
   };
 
@@ -128,7 +217,7 @@ export function AuthCard({ mode }: { mode: Mode }) {
             queryParams: { prompt: "select_account" },
           },
         });
-        if (error) toast.error(friendlyError(error.message));
+        if (error) reportError(error);
         return;
       }
 
@@ -139,11 +228,55 @@ export function AuthCard({ mode }: { mode: Mode }) {
       });
       if (result.error) toast.error(result.error.message ?? "Google sign-in failed");
     } catch (error) {
-      toast.error(error instanceof Error ? friendlyError(error.message) : "Google sign-in failed");
+      toast.error(error instanceof Error ? friendlyError(error, mode) : "Google sign-in failed");
     } finally {
       setGoogleLoading(false);
     }
   };
+
+  if (awaitingConfirmation) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-[26rem]"
+      >
+        <span
+          className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary"
+          aria-hidden="true"
+        >
+          <MailCheck className="h-5 w-5" />
+        </span>
+        <h1 className="mt-5 font-display text-h2 text-foreground">Confirm your email</h1>
+        <p className="mt-2 text-body text-muted-foreground">
+          Your account was created. We sent a confirmation link to{" "}
+          <span className="font-medium text-foreground">{awaitingConfirmation}</span>. Open it to
+          finish signing in.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-7 h-11 w-full text-body"
+          onClick={resendConfirmation}
+          disabled={loading || cooldown > 0}
+        >
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
+          {cooldown > 0 ? `Resend available in ${cooldown}s` : "Resend confirmation email"}
+        </Button>
+        <p className="mt-8 border-t pt-6 text-center text-small text-muted-foreground">
+          Wrong address?{" "}
+          <button
+            type="button"
+            onClick={() => setAwaitingConfirmation(null)}
+            className="rounded-md font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Go back
+          </button>
+        </p>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -273,10 +406,10 @@ export function AuthCard({ mode }: { mode: Mode }) {
         <Button
           type="submit"
           className="btn-glow mt-2 h-11 w-full text-body"
-          disabled={loading || googleLoading}
+          disabled={loading || googleLoading || cooldown > 0}
         >
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
-          {isSignup ? "Create account" : "Sign in"}
+          {cooldown > 0 ? `Try again in ${cooldown}s` : isSignup ? "Create account" : "Sign in"}
         </Button>
         <p className="sr-only" role="status" aria-live="polite">
           {loading
