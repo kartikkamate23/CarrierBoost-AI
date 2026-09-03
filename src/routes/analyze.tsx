@@ -22,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { analyzeCareerReadiness, type CareerAnalysis } from "@/lib/career-engine";
+import { analyzeCareerReadiness, RUBRIC_VERSION, type CareerAnalysis } from "@/lib/career-engine";
 import { saveTargetRole } from "@/lib/target-role";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -322,7 +322,7 @@ function AnalyzePage() {
             </div>
             <div className="rounded-2xl border border-amber-300/60 bg-amber-50/70 p-5 text-sm text-amber-950 dark:bg-amber-950/20 dark:text-amber-100">
               <AlertTriangle className="mb-2 h-5 w-5" aria-hidden="true" />
-              Scores are estimates from rubric <strong>careerboost-2026.2</strong>. They do not
+              Scores are estimates from rubric <strong>{RUBRIC_VERSION}</strong>. They do not
               guarantee results in every ATS or hiring process.
             </div>
           </aside>

@@ -1,6 +1,11 @@
 import { brihatlabsCoursePath, recommendBrihatLabsCourses } from "./brihatlabs-courses.ts";
+import { matchSkill, type SkillMatch } from "./skill-ontology.ts";
 
-export const RUBRIC_VERSION = "careerboost-2026.2";
+// 2026.3 routes keyword matching through the skill ontology (aliases and
+// plural/singular forms), which raises scores for resumes that were previously
+// penalised for natural wording. Bumped so a stored score always identifies
+// the scoring behaviour that produced it.
+export const RUBRIC_VERSION = "careerboost-2026.3";
 
 export type ScoreKey =
   | "ats"
@@ -286,13 +291,21 @@ function evidenceForKeyword(raw: string, key: string): KeywordEvidence {
     .split(/\n+|(?<=[.!?])\s+/)
     .map((value) => value.trim())
     .filter(Boolean);
-  const found = sentences.filter((sentence) => includesTerm(sentence, key));
-  const meaningful = found.filter((sentence) => {
-    const keywordIndex = sentence.toLocaleLowerCase().indexOf(key.toLocaleLowerCase());
+
+  // Matching goes through the skill ontology rather than the literal key, so
+  // "K8s", "PostgreSQL" and "dashboards" evidence their competencies instead
+  // of being scored as missing. `hit.form` is the surface form that actually
+  // matched, which keeps the quoted evidence centred on the right span.
+  const found = sentences
+    .map((sentence) => ({ sentence, hit: matchSkill(sentence, key) }))
+    .filter((entry): entry is { sentence: string; hit: SkillMatch } => entry.hit !== null);
+
+  const meaningful = found.filter(({ sentence, hit }) => {
+    const keywordIndex = sentence.toLocaleLowerCase().indexOf(hit.form);
     const localContext =
       keywordIndex < 0
         ? sentence
-        : sentence.slice(Math.max(0, keywordIndex - 90), keywordIndex + key.length + 90);
+        : sentence.slice(Math.max(0, keywordIndex - 90), keywordIndex + hit.form.length + 90);
     const hasAction = actionWords.some((word) => includesTerm(sentence, word));
     const hasMetric = metricPattern.test(sentence);
     const hasNearbyScope = scopeWords.some((word) => includesTerm(localContext, word));
@@ -311,7 +324,7 @@ function evidenceForKeyword(raw: string, key: string): KeywordEvidence {
     name,
     status,
     evidence: (meaningful.length ? meaningful : found)
-      .map((sentence) => compactKeywordEvidence(sentence, key))
+      .map(({ sentence, hit }) => compactKeywordEvidence(sentence, hit.form))
       .filter((sentence, index, all) => all.indexOf(sentence) === index)
       .slice(0, 2),
     why: `${name} is a priority competency for the selected role.`,
