@@ -12,6 +12,28 @@
   50% { transform: translate3d(-8%, -5%, 0) scale(0.94); }
 }
 
+/* Travelling pulse drawn along lesson-diagram connectors. Purely decorative;
+   the arrow beside it already communicates direction. */
+@keyframes flow-right {
+  0% { transform: translateX(-100%); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translateX(200%); opacity: 0; }
+}
+
+@keyframes flow-down {
+  0% { transform: translateY(-100%); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translateY(200%); opacity: 0; }
+}
+
+.animate-flow-right { animation: flow-right 2.4s linear infinite; }
+.animate-flow-down { animation: flow-down 2.4s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-flow-right,
+  .animate-flow-down { animation: none; }
+}
+
 .ambient-background {
   position: fixed;
   inset: 0;

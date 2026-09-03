@@ -1,6 +1,11 @@
 import type { ContentBlock, Course, Lesson, QuizQuestion, Unit } from "../types/course.ts";
 import { fullStackCourse, mernStackCourse, softwareTestingCourse } from "./software-course-data.ts";
 import { seedSubjects } from "./course-subjects.ts";
+import { diagramForTopic } from "./topic-diagrams.ts";
+import { definitionFor } from "./topic-definitions.ts";
+import { comparisonTableFor, referenceTable } from "./topic-tables.ts";
+import { subjectCurricula, type SubjectModule } from "./subject-curricula.ts";
+import { assessmentBlocks, projectBlocks } from "./lesson-briefs.ts";
 
 const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
@@ -230,9 +235,16 @@ function dataFoundationsBlocks(): ContentBlock[] {
   ];
 }
 
-function learningBlocks(title: string, moduleTitle: string, subject: Course["subject"], type: Lesson["type"]): ContentBlock[] {
+function learningBlocks(title: string, moduleTitle: string, subject: Course["subject"], type: Lesson["type"], projectBrief?: string): ContentBlock[] {
+  // Assessments and projects are not concept lessons and get their own bodies.
+  if (type === "quiz") return assessmentBlocks(moduleTitle, /final/i.test(title));
+  if (type === "project") return projectBlocks(title, moduleTitle, subject, projectBrief);
   if (title === "What is Data?") return dataFoundationsBlocks();
-  const simple = definitions[title] || `${title} is a practical part of ${moduleTitle}. It gives learners a clear mental model and a repeatable way to use the idea in real work.`;
+  // Course-local wording wins; the shared topic library covers the rest.
+  const known = definitions[title] ?? definitionFor(title, subject);
+  // Fallback wording names the concrete skill and the module rather than
+  // repeating one sentence across the catalog.
+  const simple = known ?? `${title} is one of the working skills taught in ${moduleTitle}. This lesson covers what it is, when it is the right choice, how to apply it in a small example, and how to tell whether the result is correct.`;
   const subjectContext = ({
     analytics: { input: "Business question + raw data", output: "Insight + recommendation", example: `Imagine a retailer asking why revenue changed. ${title} helps the analyst move from transaction rows to a checked explanation that a decision-maker can use.` },
     science: { input: "Problem + representative data", output: "Tested solution + impact", example: `Imagine a subscription team trying to understand churn. ${title} helps the data scientist explore evidence, quantify uncertainty, and test a solution on data that was not used to build it.` },
@@ -242,14 +254,21 @@ function learningBlocks(title: string, moduleTitle: string, subject: Course["sub
   const specializedCode = subject === "analytics" || subject === "science" ? codeBySubject[subject][title] : undefined;
   const code = specializedCode ?? (codeExamples[title] ? { language: "python" as const, code: codeExamples[title] } : undefined);
   const chartGuide = chartGuides[title];
+  const topicDiagram = diagramForTopic(title, moduleTitle, subject);
+  const comparison = comparisonTableFor(title) ?? comparisons[title];
   const blocks: ContentBlock[] = [
     { type: "heading", text: `Understanding ${title}` }, { type: "paragraph", text: simple },
     { type: "heading", text: `Why ${title} matters` }, { type: "paragraph", text: `${title} turns an abstract idea into a process we can inspect, test, and improve. The goal is to know when it is useful, what assumptions it makes, and what evidence would make the result trustworthy.` },
     { type: "callout", title: "Daily-life analogy", text: dailyLifeAnalogy(title, subject), tone: "info" },
+    { type: "heading", text: "How it works, step by step" },
+    { type: "diagram", ...topicDiagram },
     { type: "heading", text: "A practical example" }, { type: "paragraph", text: subjectContext.example },
-    { type: "heading", text: "How the workflow fits together" }, { type: "diagram", variant: /architecture/i.test(title) ? "architecture" : type === "project" || /workflow|pipeline|lifecycle/i.test(title) ? "pipeline" : "flow", items: [subjectContext.input, `Apply ${title}`, "Validate assumptions", subjectContext.output] },
+    { type: "heading", text: "At a glance" },
+    { type: "table", ...(comparison ?? referenceTable(title, moduleTitle, subject)) },
     { type: "heading", text: "A repeatable approach" },
     { type: "list", items: ["Start with a clear input and desired outcome.", `Apply the core idea behind ${title} in one small step.`, "Inspect the result instead of assuming it is correct.", "Adjust the process and repeat with new examples."] },
+    { type: "heading", text: "Where it sits in the wider workflow" },
+    { type: "diagram", variant: "flow", items: [subjectContext.input, `Apply ${title}`, "Validate assumptions", subjectContext.output] },
     { type: "heading", text: "Important considerations" }, { type: "paragraph", text: `In technical work, ${title} belongs inside a reproducible ${moduleTitle.toLowerCase()} workflow. Record the input, transformations, assumptions, output, and validation so another person can understand and repeat the result.` },
   ];
   if (chartGuide) blocks.push(
@@ -259,7 +278,7 @@ function learningBlocks(title: string, moduleTitle: string, subject: Course["sub
     { type: "callout", title: "When not to use it", text: chartGuide.avoid, tone: "warning" },
     { type: "callout", title: "Common chart mistake", text: chartGuide.mistake, tone: "warning" },
   );
-  if (comparisons[title]) blocks.push({ type: "heading", text: "Compare the ideas" }, { type: "table", ...comparisons[title] });
+  if (comparison && comparisons[title]) blocks.push({ type: "heading", text: "Compare the ideas" }, { type: "table", ...comparisons[title] });
   if (formulas[title]) blocks.push({ type: "heading", text: "Math, one step at a time" }, { type: "formula", ...formulas[title] });
   if (code) blocks.push(
     { type: "heading", text: `Practical ${code.language === "sql" ? "SQL" : code.language === "excel" ? "Excel" : "Python"}` },
@@ -331,12 +350,25 @@ function quizQuestions(moduleTitle: string, subject: Course["subject"]): QuizQue
   return [contextual, ...rotated].map(([prompt, options, answer, explanation], index) => ({ id: `${slugify(moduleTitle)}-q${index + 1}`, prompt, options, answer, explanation, }));
 }
 
-function makeUnit(index: number, title: string, lessonTitles: string[], description: string, subject: Course["subject"]): Unit {
+/**
+ * A lesson is a build brief when its title asks the learner to produce
+ * something. Matching on whole words matters here: an earlier substring test
+ * treated "What is an API?" and "Fetch API" as projects, which locked ordinary
+ * concept lessons behind the module assessments.
+ */
+const PROJECT_TITLE = /\b(build|project|capstone|end-to-end|portfolio)\b/i;
+
+function makeUnit(index: number, title: string, lessonTitles: string[], description: string, subject: Course["subject"], options: { forceProject?: boolean; projectBrief?: string } = {}): Unit {
   const lessons = lessonTitles.map((lessonTitle, lessonIndex): Lesson => {
     const quiz = /quiz|assessment/i.test(lessonTitle);
-    const project = /build|project|prediction|classifier|segmentation|attrition|api/i.test(lessonTitle) && !quiz;
+    const project = !quiz && (options.forceProject || PROJECT_TITLE.test(lessonTitle));
     const type: Lesson["type"] = quiz ? "quiz" : project ? "project" : "lesson";
-    return { id: `module-${index + 1}-${slugify(lessonTitle)}`, title: lessonTitle, type, duration: quiz ? "12 min" : project ? "20 min" : `${8 + (lessonIndex % 4) * 2} min`, description: quiz ? `Check your understanding of ${title}.` : `Learn ${lessonTitle.toLowerCase()} with intuition, a visual flow, practical examples, and clear takeaways.`, content: learningBlocks(lessonTitle, title, subject, type), questions: quiz ? quizQuestions(title, subject) : undefined };
+    const description = quiz
+      ? `Check your understanding of ${title}.`
+      : project
+        ? `Apply what this course taught to a portfolio-ready build, and document how you know it works.`
+        : `Learn ${lessonTitle.toLowerCase()} with intuition, a visual flow, practical examples, and clear takeaways.`;
+    return { id: `module-${index + 1}-${slugify(lessonTitle)}`, title: lessonTitle, type, duration: quiz ? "12 min" : project ? "45 min" : `${8 + (lessonIndex % 4) * 2} min`, description, content: learningBlocks(lessonTitle, title, subject, type, options.projectBrief), questions: quiz ? quizQuestions(title, subject) : undefined };
   });
   return { id: `module-${index + 1}`, title, description, lessons };
 }
@@ -453,17 +485,28 @@ const subjectCourseSubjects: Record<string, Course["subject"]> = {
 
 const subjectCourses: Course[] = seedSubjects.map((subject) => {
   const courseSubject = subjectCourseSubjects[subject.slug] ?? "analytics";
-  const moduleTitle = `${subject.name} Foundations`;
-  const lessonTitles = [
-    `What is ${subject.name}?`,
-    `Why ${subject.name} matters`,
-    `${subject.name} workflow`,
-    `Practical ${subject.name} example`,
-    `Practice with ${subject.name}`,
-    `Common ${subject.name} mistakes`,
-    `Build with ${subject.name}`,
-    "Module Quiz",
+  const curriculum = subjectCurricula[subject.slug];
+  // Every seeded subject has a hand-written curriculum; the placeholder module
+  // below only guards against a new seed being added without one.
+  const modules: SubjectModule[] = curriculum?.modules ?? [
+    [`${subject.name} Foundations`, [`What is ${subject.name}?`, `Why ${subject.name} matters`, "Module Quiz"], `Build a practical foundation in ${subject.name}.`],
   ];
+  const units = modules.map(([moduleTitle, lessons, description], index) =>
+    makeUnit(index, moduleTitle, lessons, description, courseSubject),
+  );
+  if (curriculum) {
+    units.push(
+      makeUnit(
+        modules.length,
+        `${subject.name} Capstone`,
+        [curriculum.project],
+        curriculum.projectBrief,
+        courseSubject,
+        { forceProject: true, projectBrief: curriculum.projectBrief },
+      ),
+    );
+  }
+  const lessonTitles = units.flatMap((unit) => unit.lessons);
   return {
     id: `course-${subject.id}`,
     slug: subject.slug,
@@ -477,7 +520,7 @@ const subjectCourses: Course[] = seedSubjects.map((subject) => {
     tags: [subject.name, subject.difficulty, "Projects"],
     subject: courseSubject,
     focus: `Use ${subject.name} to solve practical problems`,
-    curriculumHeadline: `From ${subject.name} concepts to applied evidence`,
+    curriculumHeadline: `From ${subject.name} concepts to a portfolio project`,
     outcomes: [subject.description, `Apply ${subject.name} in a small, reproducible project`, "Explain decisions, validate results, and identify next steps"],
     audience: [`Learners building a foundation in ${subject.name}`, "Developers, analysts, and career switchers who prefer practical learning"],
     prerequisites: ["No prior professional experience required", "A willingness to practice and inspect results"],
@@ -488,7 +531,7 @@ const subjectCourses: Course[] = seedSubjects.map((subject) => {
     jobs: ["Junior practitioner", "Analyst", "Developer"],
     portfolioChecklist: ["Reproducible project", "Validation evidence", "README with decisions", "Resume-ready explanation"],
     nextCourseText: "Continue with a connected course or career program.",
-    units: [makeUnit(0, moduleTitle, lessonTitles, `Build a practical foundation in ${subject.name}.`, courseSubject)],
+    units,
   };
 });
 

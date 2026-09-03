@@ -1,5 +1,10 @@
 import type { CodeLanguage, ContentBlock, Course, Lesson, QuizQuestion, Unit } from "../types/course.ts";
 
+import { diagramForTopic } from "./topic-diagrams.ts";
+import { definitionFor } from "./topic-definitions.ts";
+import { comparisonTableFor, referenceTable } from "./topic-tables.ts";
+import { assessmentBlocks, projectBlocks } from "./lesson-briefs.ts";
+
 type SoftwareSubject = "fullstack" | "mern" | "testing";
 type ModuleDefinition = [title: string, lessons: string[], description: string];
 
@@ -38,9 +43,12 @@ const definitions: Record<string, string> = {
 };
 
 function simpleDefinition(title: string, moduleTitle: string, subject: SoftwareSubject) {
-  if (definitions[title]) return definitions[title];
+  // Course-local wording wins, then the shared topic library, then a fallback
+  // that at least names the concrete skill and where it is used.
+  const known = definitions[title] ?? definitionFor(title, subject);
+  if (known) return known;
   const context = subject === "testing" ? "software quality workflow" : subject === "mern" ? "MERN application" : "full-stack web application";
-  return `${title} is a practical part of the ${context}. In this lesson, you will learn its purpose, how it connects to ${moduleTitle.toLowerCase()}, and how to verify that it works.`;
+  return `${title} is one of the working skills in the ${context}, taught here as part of ${moduleTitle}. This lesson covers what it does, where it belongs in the request or delivery flow, how to build a small working example, and how to prove it behaves correctly.`;
 }
 
 function analogyFor(title: string, subject: SoftwareSubject) {
@@ -54,6 +62,10 @@ function analogyFor(title: string, subject: SoftwareSubject) {
 }
 
 function diagramFor(title: string, moduleTitle: string, subject: SoftwareSubject): ContentBlock {
+  // The shared library holds topic-specific diagrams; the rules below remain as
+  // the fallback for titles it does not cover.
+  const shared = diagramForTopic(title, moduleTitle, subject);
+  if (shared) return { type: "diagram", ...shared };
   if (/authentication|login|jwt|protected route/i.test(`${title} ${moduleTitle}`)) return { type: "diagram", variant: "flow", items: ["Login form", "POST /login", "Verify credentials", "Issue secure token/session", "Protected request", "Authorization check"] };
   if (/deployment|docker|ci\/cd|production build|github actions/i.test(`${title} ${moduleTitle}`)) return { type: "diagram", variant: "pipeline", items: ["Developer", "Git repository", "CI checks", "Build", "Automated tests", "Container", "Cloud", "Production"] };
   if (subject === "mern") return { type: "diagram", variant: "architecture", items: ["React UI", "HTTP / Axios", "Express route", "Node service", "Mongoose model", "MongoDB", "JSON response", "UI update"] };
@@ -91,6 +103,9 @@ function resourceFor(title: string, moduleTitle: string, subject: SoftwareSubjec
 }
 
 function learningBlocks(title: string, moduleTitle: string, subject: SoftwareSubject, type: Lesson["type"]): ContentBlock[] {
+  // Assessments and projects are not concept lessons and get their own bodies.
+  if (type === "quiz") return assessmentBlocks(moduleTitle, /final/i.test(title));
+  if (type === "project") return projectBlocks(title, moduleTitle, subject);
   const blocks: ContentBlock[] = [
     { type: "heading", text: "What is it?" },
     { type: "paragraph", text: simpleDefinition(title, moduleTitle, subject) },
@@ -105,6 +120,8 @@ function learningBlocks(title: string, moduleTitle: string, subject: SoftwareSub
     { type: "paragraph", text: `In technical terms, ${title} should expose a clear contract: known inputs, one primary responsibility, observable output, explicit failure behavior, and boundaries for security and performance. That contract makes the work easier to integrate, test, and maintain.` },
     { type: "heading", text: "Practical example" },
     { type: "paragraph", text: `Imagine a task-management application. Apply ${title} to one small user journey, such as creating a task, loading a list, protecting an account, or verifying a response. Keep the example small enough to explain and repeat.` },
+    { type: "heading", text: "At a glance" },
+    { type: "table", ...(comparisonTableFor(title) ?? referenceTable(title, moduleTitle, subject)) },
   ];
   const code = codeFor(title, moduleTitle, subject);
   if (code) blocks.push({ type: "code", ...code });
@@ -115,7 +132,7 @@ function learningBlocks(title: string, moduleTitle: string, subject: SoftwareSub
     { type: "heading", text: "Interview questions" },
     { type: "list", items: [`How would you explain ${title} to a beginner?`, `Where does ${title} belong in a production system?`, `How would you test or validate ${title}?`, "What trade-off or failure mode would you discuss with a teammate?"] },
     { type: "callout", title: "Still confused?", text: `${analogyFor(title, subject)} Now trace one request or test from its starting point to the final evidence, naming what each step receives and returns.`, tone: "info" },
-    { type: "callout", title: type === "project" ? "Portfolio milestone" : "Key takeaways", text: type === "project" ? `Build this milestone in a public-ready repository. Include a README, setup steps, decisions, validation evidence, one limitation, a demo, and a resume bullet you can defend in an interview.` : `${title} is useful when it solves a defined problem, has a visible contract, handles failure deliberately, and can be verified with repeatable evidence.`, tone: "success" },
+    { type: "callout", title: "Key takeaways", text: `${title} is useful when it solves a defined problem, has a visible contract, handles failure deliberately, and can be verified with repeatable evidence.`, tone: "success" },
     resourceFor(title, moduleTitle, subject),
   );
   return blocks;
